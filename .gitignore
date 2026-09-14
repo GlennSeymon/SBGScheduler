@@ -1,0 +1,55 @@
+# Dependencies
+node_modules/
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# Internal planning docs — kept locally, not shipped in the interview deliverable
+# (README.md and clientBrief.md stay tracked)
+/CLAUDE.md
+/projectScope.md
+/tech-stack.md
+/implementation-plan.md
+
+# Build output
+dist/
+build/
+.vercel/
+*.tsbuildinfo
+
+# Prisma
+**/generated/
+
+# Testing
+coverage/
+playwright-report/
+test-results/
+blob-report/
+playwright/.cache/
+
+# Sentry
+.sentryclirc
+.env.sentry-build-plugin
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+*~
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# LibreOffice lock files
+.~lock.*#
+
+# Windows/WSL download zone markers
+*:Zone.Identifier

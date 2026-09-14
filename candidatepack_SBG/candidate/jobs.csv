@@ -1,0 +1,54 @@
+job_id,customer_name,customer_phone,customer_email,site_address,suburb,state,postcode,job_type,battery_model,scheduled_start,duration_blocks,status,assigned_installer_id,notes,created_at
+J-1001,Amelia Kelly,0416 418 142,amelia.kelly@outlook.com,118 Railway Pde,Hornsby,NSW,2077,Battery upgrade,10 kWh,2026-09-30T01:00:00Z,3,scheduled,INS-04,,2026-08-15
+J-1002,Declan Wilson,0446 966 675,declan.wilson@iinet.net.au,96 Railway Pde,Geelong,VIC,3220,Battery install,20 kWh,2026-09-29T00:00:00Z,3,confirmed,INS-02,,2026-08-16
+J-1003,William Rossi,0465 531 957,williamrossi@iinet.net.au,140 Railway Pde,Werribee,VIC,3030,Solar + battery,13.5 kWh,2026-10-07T20:00:00Z,5,scheduled,INS-03,,2026-08-17
+J-1004,Lachlan Rossi,0497 441 799,lachlan_rossi@outlook.com,131 Kingfisher Dr,Newcastle,NSW,2300,Battery upgrade,10 kWh,2026-10-07T00:00:00Z,3,scheduled,INS-06,,2026-08-17
+J-1005,Bruce Kelly,0437 628 663,bruce_kelly@iinet.net.au,120 Waratah Ct,Wollongong,NSW,2500,Battery install,13.5 kWh,2026-09-30T23:00:00Z,3,scheduled,,,2026-08-17
+J-1006,Omar Taylor,0499 400 726,omar.taylor@gmail.com,108 Boronia Ave,Newcastle,NSW,2300,Solar + battery,13.5 kWh,2026-09-30T21:00:00Z,3,scheduled,INS-06,,2026-08-19
+J-1007,Sophie Brown,0413 528 185,sophie.brown@gmail.com,175 Victoria Rd,Glen Waverley,VIC,3150,Battery upgrade,20 kWh,,3,unscheduled,,Awaiting network approval,2026-08-19
+J-1008,Tane Garcia,0454 954 476,tane_garcia@iinet.net.au,142 Station St,Fremantle,WA,6160,Solar + battery,13.5 kWh,,4,unscheduled,,"Deposit paid, customer chasing a date",2026-08-19
+J-1009,Noah Schneider,0415 684 679,noah.schneider@bigpond.com,76 Valley View Ct,Newcastle,NSW,2300,Battery install,10 kWh,2026-10-09T01:00:00Z,4,cancelled,INS-05,Customer cancelled - moving house,2026-08-20
+J-1010,Elena McKenzie,0450 321 998,elenamckenzie@bigpond.com,14 Grevillea Way,Werribee,VIC,3030,Solar + battery,13.5 kWh,2026-10-05T02:00:00Z,3,scheduled,INS-03,,2026-08-22
+J-1011,Marco White,0470 761 504,marco_white@gmail.com,34 Main Rd,Ringwood,VIC,3134,Solar + battery,20 kWh,2026-10-06T20:00:00Z,3,scheduled,INS-02,,2026-08-24
+J-1012,Mia Petrov,0440 395 868,mia_petrov@outlook.com,80 Eucalyptus Dr,Armadale,WA,6112,Solar + battery,20 kWh,,3,unscheduled,,,2026-08-24
+J-1013,Tegan Taylor,0449 421 389,tegan.taylor@iinet.net.au,7 Seaview Rd,Toowoomba,QLD,4350,Battery install,10 kWh,,3,unscheduled,,Customer away until end of month,2026-08-24
+J-1014,Rhys Kelly,0470 463 361,rhys.kelly@bigpond.com,69 Park Ave,Capalaba,QLD,4157,Solar + battery,10 kWh,2026-09-29T22:00:00Z,2,scheduled,INS-08,,2026-08-25
+J-1015,Alexander O'Brien,0479 683 650,alexanderobrien@iinet.net.au,102 Acacia Pl,Gosford,NSW,2250,Battery upgrade,20 kWh,2026-10-02T02:00:00Z,2,scheduled,INS-05,,2026-08-27
+J-1016,Margaret Sato,0484 660 100,margaretsato@iinet.net.au,21 High St,Liverpool,NSW,2170,Solar + battery,13.5 kWh,2026-10-01T01:00:00Z,4,confirmed,INS-06,,2026-08-28
+J-1017,Tane Taylor,0483 786 900,tane.taylor@outlook.com,55 George St,Glen Waverley,VIC,3150,Solar + battery,20 kWh,,4,unscheduled,,,2026-08-28
+J-1018,Noah Hassan,0457 577 966,noahhassan@outlook.com,174 Grevillea Way,Liverpool,NSW,2170,Solar + battery,13.5 kWh,2026-09-28T21:00:00Z,3,scheduled,INS-04,,2026-08-29
+J-1019,Ella Anderson,0429 934 987,ella.anderson@bigpond.com,35 Kingfisher Dr,Werribee,VIC,3030,Battery install,13.5 kWh,2026-10-06T23:00:00Z,5,scheduled,INS-03,,2026-08-30
+J-1020,Nadia Ryan,0454 557 520,nadiaryan@bigpond.com,49 Creekside Pl,Werribee,VIC,3030,Battery install,13.5 kWh,2026-09-28T22:00:00Z,5,scheduled,INS-03,,2026-08-30
+J-1021,James Lopez,0478 471 132,james.lopez@iinet.net.au,48 Park Ave,Fremantle,WA,6160,Battery install,13.5 kWh,2026-10-05T02:00:00Z,3,confirmed,INS-09,,2026-08-30
+J-1022,Rhys Lee,0414 111 492,rhys_lee@gmail.com,160 Creekside Pl,Ballarat,VIC,3350,Battery upgrade,10 kWh,2026-10-04T20:00:00Z,4,scheduled,INS-01,,2026-08-31
+J-1023,Rhys Jones,0493 896 677,rhysjones@yahoo.com.au,163 George St,Redcliffe,QLD,4020,Battery upgrade,13.5 kWh,2026-10-05T21:00:00Z,5,confirmed,INS-07,,2026-08-31
+J-1024,Priya Martin,0469 989 922,priya.martin@yahoo.com.au,26 Jacaranda Rd,Sunbury,VIC,3429,Solar + battery,13.5 kWh,2026-09-29T00:00:00Z,3,scheduled,INS-01,,2026-09-01
+J-1025,Tane White,0437 819 631,tanewhite@iinet.net.au,118 Kingfisher Dr,Hornsby,NSW,2077,Battery upgrade,13.5 kWh,2026-10-08T23:00:00Z,2,confirmed,INS-05,,2026-09-01
+J-1026,Liam Khan,0491 576 476,liam_khan@gmail.com,108 Boronia Ave,Wollongong,NSW,2500,Solar + battery,13.5 kWh,2026-10-01T23:00:00Z,3,scheduled,INS-05,,2026-09-01
+J-1027,Marco Martin,0429 184 191,marcomartin@outlook.com,134 Creekside Pl,Fremantle,WA,6160,Solar + battery,10 kWh,2026-10-02T02:00:00Z,4,scheduled,INS-09,,2026-09-01
+J-1028,Liam Chen,0441 178 796,liam_chen@iinet.net.au,144 Creekside Pl,Ringwood,VIC,3134,Battery upgrade,10 kWh,,4,unscheduled,,,2026-09-01
+J-1029,Mateo Taylor,0433 510 601,mateotaylor@yahoo.com.au,106 Creekside Pl,Logan Central,QLD,4114,Solar + battery,10 kWh,2026-09-29T23:00:00Z,4,scheduled,INS-07,,2026-09-02
+J-1030,James White,0417 999 412,james_white@iinet.net.au,6 High St,Werribee,VIC,3030,Solar + battery,13.5 kWh,2026-09-30T00:00:00Z,4,scheduled,INS-02,,2026-09-03
+J-1031,Hana Costa,0495 974 780,hana.costa@outlook.com,106 Ridgeway Dr,Blacktown,NSW,2148,Battery upgrade,20 kWh,2026-09-30T23:00:00Z,3,confirmed,INS-04,,2026-09-04
+J-1032,Harper Tanaka,0431 712 136,harper_tanaka@yahoo.com.au,102 Wattle Cres,Toowoomba,QLD,4350,Battery upgrade,20 kWh,2026-10-06T22:00:00Z,2,scheduled,INS-08,,2026-09-04
+J-1033,Ruby Chen,0433 756 128,rubychen@yahoo.com.au,162 Waratah Ct,Parramatta,NSW,2150,Battery install,10 kWh,2026-10-06T21:00:00Z,2,scheduled,INS-06,,2026-09-05
+J-1034,Liam Ryan,0498 595 232,liam_ryan@bigpond.com,107 Hillcrest Ave,Gosford,NSW,2250,Solar + battery,20 kWh,,5,unscheduled,,Two-storey - needs scaffold,2026-09-05
+J-1035,Wei Kaur,0451 652 643,wei.kaur@outlook.com,132 George St,Werribee,VIC,3030,Solar + battery,20 kWh,,4,unscheduled,,,2026-09-05
+J-1036,Tane Williams,0477 344 165,tane.williams@iinet.net.au,78 Ridgeway Dr,Springfield,QLD,4300,Battery install,10 kWh,2026-10-03T04:00:00Z,5,scheduled,INS-08,,2026-09-07
+J-1037,Ruby O'Brien,0414 574 990,ruby.obrien@gmail.com,130 Banksia Ct,Sunbury,VIC,3429,Battery install,20 kWh,2026-09-28T22:00:00Z,4,confirmed,INS-01,,2026-09-08
+J-1038,Wei O'Brien,0431 966 337,wei_obrien@iinet.net.au,3 Park Ave,Joondalup,WA,6027,Solar + battery,13.5 kWh,2026-10-01T02:00:00Z,5,confirmed,INS-09,,2026-09-08
+J-1039,Helen Nguyen,0493 634 654,helen_nguyen@bigpond.com,130 George St,Campbelltown,NSW,2560,Solar + battery,10 kWh,,3,unscheduled,,,2026-09-09
+J-1040,Bronwyn Fraser,0429 647 478,bronwyn_fraser@outlook.com,9 Eucalyptus Dr,Craigieburn,VIC,3064,Battery install,13.5 kWh,2026-10-06T21:00:00Z,4,confirmed,INS-01,,2026-09-10
+J-1041,Wei Jones,0468 644 971,wei.jones@yahoo.com.au,TBC (new build),Geelong,VIC,3220,Battery upgrade,20 kWh,2026-09-27T21:00:00Z,2,confirmed,INS-02,,2026-09-12
+J-1042,Tegan Jones,0440 292 647,teganjones@yahoo.com.au,89 Ridgeway Dr,Baldivis,WA,6171,Battery upgrade,20 kWh,2026-10-01T00:00:00Z,2,confirmed,INS-09,,2026-09-13
+J-1043,Mateo Garcia,0471 557 134,mateo.garcia@outlook.com,27 Church St,Hornsby,NSW,2077,Battery install,13.5 kWh,2026-10-05T21:00:00Z,3,scheduled,INS-06,,2026-09-14
+J-1044,Ethan O'Brien,0495 774 308,ethan_obrien@yahoo.com.au,162 Station St,Ipswich,QLD,4305,Battery install,20 kWh,,3,unscheduled,,Customer prefers afternoon,2026-09-14
+J-1045,Nadia Te Wiata,0495 516 115,nadiatewiata@outlook.com,14 Banksia Ct,Wollongong,NSW,2500,Battery install,13.5 kWh,,3,unscheduled,,,2026-09-17
+J-1046,Ruby McKenzie,0426 236 222,ruby_mckenzie@iinet.net.au,87 Park Ave,Berwick,VIC,3806,Battery upgrade,20 kWh,2026-10-04T21:00:00Z,5,scheduled,INS-02,,2026-09-18
+J-1047,Alexander Smith,0465 299 975,alexander.smith@bigpond.com,101 Lorikeet Cl,Hornsby,NSW,2077,Battery install,13.5 kWh,2026-10-05T21:00:00Z,4,scheduled,INS-04,,2026-09-18
+J-1048,Noah Smith,0428 965 228,noahsmith@iinet.net.au,6 Melaleuca St,Southport,QLD,4215,Battery install,10 kWh,2026-10-02T00:00:00Z,3,scheduled,INS-07,,2026-09-18
+J-1049,Ruby Parata,0487 955 948,ruby_parata@bigpond.com,128 Railway Pde,Joondalup,WA,6027,Battery upgrade,10 kWh,,5,unscheduled,,,2026-09-18
+J-1050,Noah Papadopoulos,0497 399 678,noah_papadopoulos@iinet.net.au,5 Park Ave,Wollongong,NSW,2500,Battery upgrade,13.5 kWh,2026-09-28T22:00:00Z,5,confirmed,INS-06,"Rescheduled 3 times at customer request (12 Aug, 26 Aug, 9 Sep). Customer frustrated - do not move again without calling first.",2026-09-19
+J-1051,James Costa,0483 310 817,james_costa@bigpond.com,10 George St,North Lakes,QLD,4509,Battery upgrade,13.5 kWh,2026-10-01T22:00:00Z,4,confirmed,INS-07,,2026-09-20
+J-1052,Lucas Brown,0446 912 477,lucas_brown@outlook.com,84 George St,Springfield,QLD,4300,Solar + battery,10 kWh,2026-10-09T23:00:00Z,5,confirmed,INS-08,,2026-09-20
+J-1053,Arjun Petrov,0441 931 925,arjun_petrov@gmail.com,67 Church St,Armadale,WA,6112,Battery install,10 kWh,,3,unscheduled,,,2026-09-22

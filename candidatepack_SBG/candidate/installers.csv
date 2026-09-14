@@ -1,0 +1,10 @@
+installer_id,name,state,home_base,working_days,shift_start,shift_end,leave_start,leave_end,phone
+INS-01,Marcus Bell,VIC,Ringwood,"Mon,Tue,Wed,Thu,Fri",07:00,17:00,,,0462 855 736
+INS-02,Anita Rao,VIC,Werribee,"Mon,Tue,Wed,Thu,Fri",07:00,17:00,,,0469 783 452
+INS-03,Tom Alvarez,VIC,Frankston,"Tue,Wed,Thu,Fri,Sat",07:00,17:00,,,0483 863 951
+INS-04,Sarah Whitmore,NSW,Parramatta,"Mon,Tue,Wed,Thu,Fri",07:00,17:00,2026-10-05,2026-10-09,0410 859 458
+INS-05,Daniel Okafor,NSW,Penrith,"Mon,Tue,Wed,Thu,Fri",07:00,17:00,,,0490 394 937
+INS-06,Liam Chen,NSW,Hornsby,"Mon,Tue,Wed,Thu,Fri",07:00,17:00,,,0477 799 295
+INS-07,Jess Kowalski,QLD,Chermside,"Mon,Tue,Wed,Thu,Fri",07:00,17:00,,,0479 767 391
+INS-08,Aaron Te Rangi,QLD,Logan Central,"Tue,Wed,Thu,Fri,Sat",07:00,17:00,,,0417 473 839
+INS-09,Bec Halloran,WA,Joondalup,"Mon,Tue,Wed,Thu,Fri",07:00,17:00,,,0430 447 331
