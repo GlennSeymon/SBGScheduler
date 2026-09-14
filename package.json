@@ -10,7 +10,9 @@
   "scripts": {
     "dev": "concurrently -n shared,backend,frontend -c yellow,green,blue \"npm run dev --workspace=shared\" \"npm run dev --workspace=backend\" \"npm run dev --workspace=frontend\"",
     "build": "npm run build --workspace=shared && npm run build --workspace=backend && npm run build --workspace=frontend",
-    "lint": "npm run lint --workspaces"
+    "lint": "npm run lint --workspaces",
+    "deploy": "vercel deploy --prod --scope glennseymons-projects",
+    "deploy:preview": "vercel deploy --scope glennseymons-projects"
   },
   "devDependencies": {
     "concurrently": "^10.0.5"

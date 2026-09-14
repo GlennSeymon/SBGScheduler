@@ -20,11 +20,11 @@ npm run lint  # lint all three workspaces
 
 ## Deployed link
 
-TBD.
+https://sbg-scheduler-theta.vercel.app
 
 ## Repo
 
-TBD.
+https://github.com/GlennSeymon/SBGScheduler
 
 ## License
 
