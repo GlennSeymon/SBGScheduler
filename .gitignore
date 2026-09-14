@@ -53,3 +53,4 @@ Thumbs.db
 
 # Windows/WSL download zone markers
 *:Zone.Identifier
+.vercel
