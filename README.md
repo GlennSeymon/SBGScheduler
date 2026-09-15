@@ -8,8 +8,9 @@ interview take-home. See [clientBrief.md](./clientBrief.md) for the original cli
 > is done — deployment skeleton, repo tooling, data layer, backend API/scheduling rule engine, core
 > frontend scheduling UI (jobs grid, assign/reschedule), weather/geocoding/at-risk calculation, and the
 > at-risk badge/tooltip + filter in the jobs grid; Phase 8 (unit tests) is underway — backend rule engine
-> and at-risk calculation tests are done, frontend (RTL) tests are next — see the commit history for
-> current progress. Features and API below describe the target scope, not all of which is built yet.
+> and at-risk calculation tests are done, the assign form's validation is covered on the frontend, and the
+> at-risk badge (RTL) test is next — see the commit history for current progress. Features and API below
+> describe the target scope, not all of which is built yet.
 
 ## Features
 
@@ -26,8 +27,9 @@ interview take-home. See [clientBrief.md](./clientBrief.md) for the original cli
 - **SBG branding** — palette derived from the Solar Battery Group logo, light/dark theme toggle
 - **Snackbar notifications** — success/error feedback for assign and reschedule actions
 - **Skeleton loaders** *(polish)* — loading states across the UI
-- **Unit tests** — Vitest coverage for the rule engine and at-risk calculation (done), React Testing
-  Library for frontend form/component tests next; Playwright e2e tests as time allows *(polish)*
+- **Unit tests** — Vitest coverage for the rule engine and at-risk calculation, plus the assign form's
+  validation (React Testing Library) (all done); the at-risk badge component test is next; Playwright e2e
+  tests as time allows *(polish)*
 - **Error tracking** *(polish)* — Sentry for frontend and backend
 
 ## Tech Stack
