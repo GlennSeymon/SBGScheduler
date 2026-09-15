@@ -22,7 +22,7 @@ interview take-home. See [clientBrief.md](./clientBrief.md) for the original cli
   required, cached to avoid hammering the API on every request
 - **Dashboard** *(polish)* — summary cards and charts for jobs-by-status and installer utilization
 - **SBG branding** — palette derived from the Solar Battery Group logo, light/dark theme toggle
-- **Toast notifications & skeleton loaders** *(polish)* — feedback and loading states across the UI
+- **Snackbar notifications & skeleton loaders** *(polish)* — feedback and loading states across the UI
 - **Unit tests** — React Testing Library coverage for the rule engine and at-risk calculation;
   Playwright e2e tests as time allows *(polish)*
 - **Error tracking** *(polish)* — Sentry for frontend and backend
@@ -31,7 +31,7 @@ interview take-home. See [clientBrief.md](./clientBrief.md) for the original cli
 
 | Layer | Technology |
 |---|---|
-| Frontend | React (Vite) + TypeScript, Material UI + MUI X DataGrid/Charts, Tanstack Query, React Hook Form, Axios, react-hot-toast |
+| Frontend | React (Vite) + TypeScript, Material UI + MUI X DataGrid/Charts, Tanstack Query, React Hook Form, Axios |
 | Backend | Node.js + Express + TypeScript |
 | Shared | Zod schemas + inferred TS types, imported by both frontend and backend so validation is written once |
 | Database | PostgreSQL (Neon), Prisma ORM |
