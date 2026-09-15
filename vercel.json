@@ -7,7 +7,8 @@
     },
     "backend": {
       "root": "backend",
-      "entrypoint": "dist/index.js"
+      "entrypoint": "dist/index.js",
+      "installCommand": "cd .. && npm install"
     }
   },
   "rewrites": [
