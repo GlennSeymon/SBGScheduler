@@ -58,7 +58,10 @@ function renderAssignDialog() {
 
 describe('AssignDialog validation', () => {
   beforeEach(() => {
-    vi.spyOn(apiClient, 'get').mockResolvedValue({ data: [installer] });
+    vi.spyOn(apiClient, 'get').mockImplementation((url: string) => {
+      if (url === '/public-holidays') return Promise.resolve({ data: [] });
+      return Promise.resolve({ data: [installer] });
+    });
     vi.spyOn(apiClient, 'patch').mockResolvedValue({ data: job });
   });
 

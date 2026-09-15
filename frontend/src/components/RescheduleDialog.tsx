@@ -14,11 +14,14 @@ import Select from '@mui/material/Select';
 import { styled } from '@mui/material/styles';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { rescheduleJobSchema, type RescheduleJobInput, type Job } from '@sbg/shared';
+import { format } from 'date-fns';
 import { Controller, useForm, type FieldErrors } from 'react-hook-form';
 import { useEligibleInstallers } from '../api/useEligibleInstallers';
+import { useHolidaysForState } from '../api/useHolidaysForState';
 import { useRescheduleJob } from '../api/useRescheduleJob';
 import { getApiErrorResponse, getErrorMessage } from '../api/errors';
 import { useNotification } from '../notifications/NotificationContext';
+import HolidayPickerDay from './HolidayPickerDay';
 
 const Form = styled('form')(({ theme }) => ({
   display: 'flex',
@@ -45,6 +48,7 @@ interface RescheduleDialogProps {
 
 const RescheduleDialog = ({ job, open, onClose }: RescheduleDialogProps) => {
   const eligibleInstallers = useEligibleInstallers(job.state);
+  const holidayDates = useHolidaysForState(job.state);
   const rescheduleJob = useRescheduleJob();
   const { notify } = useNotification();
 
@@ -143,12 +147,17 @@ const RescheduleDialog = ({ job, open, onClose }: RescheduleDialogProps) => {
                     }
                     field.onChange(newValue.toISOString());
                   }}
+                  shouldDisableDate={(date) => holidayDates.has(format(date, 'yyyy-MM-dd'))}
+                  slots={{ day: HolidayPickerDay }}
                   slotProps={{
                     textField: {
                       fullWidth: true,
                       error: !!errors.scheduledStart,
                       helperText: errors.scheduledStart?.message,
                     },
+                    day: (ownerState) => ({
+                      holidayName: holidayDates.get(format(ownerState.day, 'yyyy-MM-dd')),
+                    }),
                   }}
                 />
               )}

@@ -12,9 +12,9 @@ interview take-home. See [clientBrief.md](./clientBrief.md) for the original cli
 > Vercel. Phase 10 (dashboard polish) is also done — summary cards plus jobs-by-status and
 > installer-utilization charts. Phase 11 (UX polish) is done — Snackbar feedback, skeleton loaders, and
 > RHF validation/messaging polish are all in. Phase 12 (observability) is done — Sentry error tracking is
-> wired up for both frontend and backend. Phase 14 (stretch: second integration) is in progress — public
-> holiday scheduling restriction, backend done, frontend in progress — see the commit history for current
-> progress. Features and API below describe the target scope, not all of which is built yet.
+> wired up for both frontend and backend. Phase 14 (stretch: second integration) is done — public holiday
+> scheduling restriction, backend and frontend — see the commit history for current progress. Features and
+> API below describe the target scope, not all of which is built yet.
 
 ## Features
 
@@ -23,7 +23,7 @@ interview take-home. See [clientBrief.md](./clientBrief.md) for the original cli
   unscheduled job to an installer and time, or reassign/reschedule an already-scheduled job
 - **Scheduling rule engine** — rejects invalid assignments: double-booking, installer/job state mismatch,
   outside the installer's shift hours or working days (timezone-aware), during installer leave, or on a
-  national/state public holiday (calendar highlighting in the assign/reschedule dialogs is *in progress*)
+  national/state public holiday (highlighted and unselectable in the assign/reschedule calendar)
 - **At-risk flagging** — flags jobs with a bad weather forecast or unassigned jobs starting soon, with a
   filter and a tooltip explaining why
 - **Live weather + geocoding** — Open-Meteo forecast (BOM ACCESS-G model) and geocoding, no API key
