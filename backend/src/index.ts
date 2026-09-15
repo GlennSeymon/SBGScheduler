@@ -3,6 +3,7 @@ import { Pool } from 'pg';
 import type { HealthResponse } from '@sbg/shared';
 import { installersRouter } from './routes/installers.js';
 import { jobsRouter } from './routes/jobs.js';
+import { notFoundHandler, errorHandler } from './middleware/error-handler.js';
 
 const app = express();
 const port = process.env.PORT ?? 3001;
@@ -24,6 +25,9 @@ app.get('/api/health', async (_req, res) => {
     res.status(503).json(body);
   }
 });
+
+app.use(notFoundHandler);
+app.use(errorHandler);
 
 app.listen(port, () => {
   console.log(`Backend listening on http://localhost:${port}`);

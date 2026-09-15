@@ -16,5 +16,10 @@ export default defineConfig([
     languageOptions: {
       globals: globals.node,
     },
+    rules: {
+      // Express identifies error-handling middleware by its 4-argument arity, so `next` must stay
+      // in the signature even when unused.
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    },
   },
 ]);
