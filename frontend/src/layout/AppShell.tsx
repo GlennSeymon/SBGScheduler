@@ -1,7 +1,9 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, NavLink, useLocation } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
@@ -39,6 +41,10 @@ const HeaderActions = styled(Box)(({ theme }) => ({
   gap: theme.spacing(1.5),
 }));
 
+const NavTabs = styled(Tabs)(({ theme }) => ({
+  minHeight: theme.spacing(5),
+}));
+
 const MainContainer = styled(Container)(({ theme }) => ({
   flex: 1,
   paddingTop: theme.spacing(3),
@@ -54,6 +60,7 @@ const Footer = styled(Box)(({ theme }) => ({
 
 const AppShell = () => {
   const { mode, toggleMode } = useColorMode();
+  const location = useLocation();
 
   return (
     <Root>
@@ -75,6 +82,14 @@ const AppShell = () => {
             </HeaderActions>
           </FlexContainer>
         </StyledToolbar>
+        <NavTabs
+          value={location.pathname === '/dashboard' ? '/dashboard' : '/'}
+          textColor="inherit"
+          indicatorColor="secondary"
+        >
+          <Tab label="Jobs" value="/" component={NavLink} to="/" />
+          <Tab label="Dashboard" value="/dashboard" component={NavLink} to="/dashboard" />
+        </NavTabs>
       </AppBar>
       <MainContainer component="main" maxWidth={false}>
         <Outlet />

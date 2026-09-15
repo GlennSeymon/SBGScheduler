@@ -4,12 +4,13 @@ An installer job scheduler for Solar Battery Group, replacing a spreadsheet-base
 view of job status, installer availability, and weather-driven scheduling risk. Built as part of an
 interview take-home. See [clientBrief.md](./clientBrief.md) for the original client brief.
 
-> **Status:** in active development ahead of an interview deadline (2026-09-16). Everything through Phase 7
+> **Status:** in active development ahead of an interview deadline (2026-09-16). Everything through Phase 9
 > is done — deployment skeleton, repo tooling, data layer, backend API/scheduling rule engine, core
-> frontend scheduling UI (jobs grid, assign/reschedule), weather/geocoding/at-risk calculation, and the
-> at-risk badge/tooltip + filter in the jobs grid; Phase 8 (unit tests) is also done — backend rule
-> engine/at-risk tests, frontend assign-form-validation/at-risk-badge tests, and a root `npm run test`
-> script. Phase 9 (MVP deploy & verification) is next — see the commit history for current progress.
+> frontend scheduling UI (jobs grid, assign/reschedule), weather/geocoding/at-risk calculation, the
+> at-risk badge/tooltip + filter in the jobs grid, unit tests (backend rule engine/at-risk, frontend
+> assign-form-validation/at-risk-badge, all runnable via `npm run test`), and MVP deploy/verification to
+> Vercel. Phase 10 (dashboard polish) is in progress — the dashboard route with summary cards is done;
+> jobs-by-status/installer-utilization charts are next — see the commit history for current progress.
 > Features and API below describe the target scope, not all of which is built yet.
 
 ## Features
@@ -23,7 +24,8 @@ interview take-home. See [clientBrief.md](./clientBrief.md) for the original cli
   filter and a tooltip explaining why
 - **Live weather + geocoding** — Open-Meteo forecast (BOM ACCESS-G model) and geocoding, no API key
   required, cached to avoid hammering the API on every request
-- **Dashboard** *(polish)* — summary cards and charts for jobs-by-status and installer utilization
+- **Dashboard** — summary cards (counts by status, at-risk, unassigned); charts for jobs-by-status and
+  installer utilization *(polish)*
 - **SBG branding** — palette derived from the Solar Battery Group logo, light/dark theme toggle
 - **Snackbar notifications** — success/error feedback for assign and reschedule actions
 - **Skeleton loaders** *(polish)* — loading states across the UI
