@@ -108,7 +108,7 @@ SBGScheduler/
 │   │   └── seed.ts        # Seeds Neon from candidatepack_SBG/candidate/*.csv
 │   └── src/
 │       ├── index.ts    # Express entry point
-│       ├── lib/         # Prisma client, scheduling rule engine, Open-Meteo geocoding + weather
+│       ├── lib/         # Prisma client, rule engine, Open-Meteo geocoding/weather, at-risk calc
 │       ├── middleware/  # Centralized error handling
 │       └── routes/      # installers, jobs (list, assign, reschedule)
 ├── frontend/
