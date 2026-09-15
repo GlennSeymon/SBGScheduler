@@ -7,8 +7,9 @@ interview take-home. See [clientBrief.md](./clientBrief.md) for the original cli
 > **Status:** in active development ahead of an interview deadline (2026-09-16). Everything through Phase 7
 > is done — deployment skeleton, repo tooling, data layer, backend API/scheduling rule engine, core
 > frontend scheduling UI (jobs grid, assign/reschedule), weather/geocoding/at-risk calculation, and the
-> at-risk badge/tooltip + filter in the jobs grid; unit tests (Phase 8) are next — see the commit history
-> for current progress. Features and API below describe the target scope, not all of which is built yet.
+> at-risk badge/tooltip + filter in the jobs grid; Phase 8 (unit tests) is underway — backend rule engine
+> tests are done, at-risk calculation and frontend tests are next — see the commit history for current
+> progress. Features and API below describe the target scope, not all of which is built yet.
 
 ## Features
 
@@ -25,8 +26,8 @@ interview take-home. See [clientBrief.md](./clientBrief.md) for the original cli
 - **SBG branding** — palette derived from the Solar Battery Group logo, light/dark theme toggle
 - **Snackbar notifications** — success/error feedback for assign and reschedule actions
 - **Skeleton loaders** *(polish)* — loading states across the UI
-- **Unit tests** — React Testing Library coverage for the rule engine and at-risk calculation;
-  Playwright e2e tests as time allows *(polish)*
+- **Unit tests** — Vitest coverage for the rule engine (done) and at-risk calculation, React Testing
+  Library for frontend form/component tests; Playwright e2e tests as time allows *(polish)*
 - **Error tracking** *(polish)* — Sentry for frontend and backend
 
 ## Tech Stack
@@ -38,7 +39,7 @@ interview take-home. See [clientBrief.md](./clientBrief.md) for the original cli
 | Shared | Zod schemas + inferred TS types, imported by both frontend and backend so validation is written once |
 | Database | PostgreSQL (Neon), Prisma ORM |
 | Weather & geocoding | [Open-Meteo](https://open-meteo.com/) forecast + geocoding APIs — free, keyless |
-| Testing | React Testing Library (unit), Playwright (e2e) |
+| Testing | Vitest (unit test runner), React Testing Library (frontend components), Playwright (e2e) |
 | Error tracking | Sentry |
 | Hosting | Vercel — frontend static build + backend as serverless functions under `/api` |
 | Tooling | npm workspaces, ESLint (flat config, typescript-eslint), Prettier |

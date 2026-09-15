@@ -2,6 +2,7 @@ import express from 'express';
 import { Pool } from 'pg';
 import { installersRouter } from './routes/installers.js';
 import { jobsRouter } from './routes/jobs.js';
+import { notFoundHandler, errorHandler } from './middleware/error-handler.js';
 const app = express();
 const port = process.env.PORT ?? 3001;
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
@@ -20,6 +21,8 @@ app.get('/api/health', async (_req, res) => {
         res.status(503).json(body);
     }
 });
+app.use(notFoundHandler);
+app.use(errorHandler);
 app.listen(port, () => {
     console.log(`Backend listening on http://localhost:${port}`);
 });
