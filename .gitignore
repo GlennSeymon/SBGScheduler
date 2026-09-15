@@ -15,6 +15,13 @@ node_modules/
 
 # Build output
 dist/
+# Exception: backend/dist/{index.js,package.json} are committed as placeholders so Vercel's
+# Services entrypoint check (which runs against the fresh git clone, before buildCommand) finds
+# something there. buildCommand overwrites them with the real build on every deploy.
+!backend/dist/
+backend/dist/*
+!backend/dist/index.js
+!backend/dist/package.json
 build/
 .vercel/
 *.tsbuildinfo
