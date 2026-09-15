@@ -13,10 +13,11 @@ import Select from '@mui/material/Select';
 import { styled } from '@mui/material/styles';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { rescheduleJobSchema, type RescheduleJobInput, type Job } from '@sbg/shared';
-import { isAxiosError } from 'axios';
 import { Controller, useForm } from 'react-hook-form';
 import { useEligibleInstallers } from '../api/useEligibleInstallers';
 import { useRescheduleJob } from '../api/useRescheduleJob';
+import { getApiErrorResponse, getErrorMessage } from '../api/errors';
+import { useNotification } from '../notifications/NotificationContext';
 
 const Form = styled('form')(({ theme }) => ({
   display: 'flex',
@@ -35,16 +36,6 @@ const FieldsContainer = styled(Box)(({ theme }) => ({
   gap: theme.spacing(2.5),
 }));
 
-interface RuleViolation {
-  rule: string;
-  message: string;
-}
-
-interface RescheduleErrorResponse {
-  error: string;
-  violations?: RuleViolation[];
-}
-
 interface RescheduleDialogProps {
   job: Job;
   open: boolean;
@@ -54,6 +45,7 @@ interface RescheduleDialogProps {
 const RescheduleDialog = ({ job, open, onClose }: RescheduleDialogProps) => {
   const eligibleInstallers = useEligibleInstallers(job.state);
   const rescheduleJob = useRescheduleJob();
+  const { notify } = useNotification();
 
   const {
     control,
@@ -78,14 +70,18 @@ const RescheduleDialog = ({ job, open, onClose }: RescheduleDialogProps) => {
     rescheduleJob.mutate(
       { jobId: job.id, input },
       {
-        onSuccess: handleClose,
+        onSuccess: () => {
+          notify(`Job ${job.id} rescheduled`);
+          handleClose();
+        },
+        onError: (error) => {
+          notify(`Job ${job.id} not rescheduled — ${getErrorMessage(error)}`, 'error');
+        },
       },
     );
   });
 
-  const errorResponse = isAxiosError<RescheduleErrorResponse>(rescheduleJob.error)
-    ? rescheduleJob.error.response?.data
-    : undefined;
+  const errorResponse = getApiErrorResponse(rescheduleJob.error);
 
   return (
     <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">

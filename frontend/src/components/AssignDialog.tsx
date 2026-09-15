@@ -13,10 +13,11 @@ import Select from '@mui/material/Select';
 import { styled } from '@mui/material/styles';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { assignJobSchema, type AssignJobInput, type Job } from '@sbg/shared';
-import { isAxiosError } from 'axios';
 import { Controller, useForm } from 'react-hook-form';
 import { useAssignJob } from '../api/useAssignJob';
 import { useEligibleInstallers } from '../api/useEligibleInstallers';
+import { getApiErrorResponse, getErrorMessage } from '../api/errors';
+import { useNotification } from '../notifications/NotificationContext';
 
 const Form = styled('form')(({ theme }) => ({
   display: 'flex',
@@ -35,16 +36,6 @@ const FieldsContainer = styled(Box)(({ theme }) => ({
   gap: theme.spacing(2.5),
 }));
 
-interface RuleViolation {
-  rule: string;
-  message: string;
-}
-
-interface AssignErrorResponse {
-  error: string;
-  violations?: RuleViolation[];
-}
-
 interface AssignDialogProps {
   job: Job;
   open: boolean;
@@ -54,6 +45,7 @@ interface AssignDialogProps {
 const AssignDialog = ({ job, open, onClose }: AssignDialogProps) => {
   const eligibleInstallers = useEligibleInstallers(job.state);
   const assignJob = useAssignJob();
+  const { notify } = useNotification();
 
   const {
     control,
@@ -75,14 +67,18 @@ const AssignDialog = ({ job, open, onClose }: AssignDialogProps) => {
     assignJob.mutate(
       { jobId: job.id, input },
       {
-        onSuccess: handleClose,
+        onSuccess: () => {
+          notify(`Job ${job.id} assigned`);
+          handleClose();
+        },
+        onError: (error) => {
+          notify(`Job ${job.id} not assigned — ${getErrorMessage(error)}`, 'error');
+        },
       },
     );
   });
 
-  const errorResponse = isAxiosError<AssignErrorResponse>(assignJob.error)
-    ? assignJob.error.response?.data
-    : undefined;
+  const errorResponse = getApiErrorResponse(assignJob.error);
 
   return (
     <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">

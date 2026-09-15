@@ -22,7 +22,8 @@ interview take-home. See [clientBrief.md](./clientBrief.md) for the original cli
   required, cached to avoid hammering the API on every request
 - **Dashboard** *(polish)* — summary cards and charts for jobs-by-status and installer utilization
 - **SBG branding** — palette derived from the Solar Battery Group logo, light/dark theme toggle
-- **Snackbar notifications & skeleton loaders** *(polish)* — feedback and loading states across the UI
+- **Snackbar notifications** — success/error feedback for assign and reschedule actions
+- **Skeleton loaders** *(polish)* — loading states across the UI
 - **Unit tests** — React Testing Library coverage for the rule engine and at-risk calculation;
   Playwright e2e tests as time allows *(polish)*
 - **Error tracking** *(polish)* — Sentry for frontend and backend

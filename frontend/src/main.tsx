@@ -6,13 +6,16 @@ import { enAU } from 'date-fns/locale';
 import AppRouter from './router';
 import ColorModeProvider from './theme/ColorModeProvider';
 import QueryProvider from './api/QueryProvider';
+import NotificationProvider from './notifications/NotificationProvider';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryProvider>
       <ColorModeProvider>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={enAU}>
-          <AppRouter />
+          <NotificationProvider>
+            <AppRouter />
+          </NotificationProvider>
         </LocalizationProvider>
       </ColorModeProvider>
     </QueryProvider>
