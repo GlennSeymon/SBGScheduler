@@ -150,7 +150,7 @@ configuration is required in development.
 | `GET` | `/api/installers` | List installers | Live |
 | `GET` | `/api/jobs` | List jobs (all fields, including at-risk flag once Phase 4 lands) | Live |
 | `PATCH` | `/api/jobs/:id/assign` | Assign an unscheduled job to an installer + start time (no rule-engine checks yet) | Live |
-| `PATCH` | `/api/jobs/:id/reschedule` | Change time and/or installer on a scheduled job | Planned |
+| `PATCH` | `/api/jobs/:id/reschedule` | Change time and/or installer on a scheduled job (no rule-engine checks yet) | Live |
 
 ## Deployed link
 
