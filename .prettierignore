@@ -1,0 +1,9 @@
+dist
+build
+coverage
+.vercel
+candidatepack_SBG
+package-lock.json
+*.tsbuildinfo
+.agents
+.claude
