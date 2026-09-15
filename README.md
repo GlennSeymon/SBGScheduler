@@ -11,7 +11,8 @@ interview take-home. See [clientBrief.md](./clientBrief.md) for the original cli
 > assign-form-validation/at-risk-badge, all runnable via `npm run test`), and MVP deploy/verification to
 > Vercel. Phase 10 (dashboard polish) is also done — summary cards plus jobs-by-status and
 > installer-utilization charts. Phase 11 (UX polish) is done — Snackbar feedback, skeleton loaders, and
-> RHF validation/messaging polish are all in — see the commit history for current progress.
+> RHF validation/messaging polish are all in. Phase 12 (observability) is in progress — Sentry error
+> tracking is wired up for both frontend and backend — see the commit history for current progress.
 > Features and API below describe the target scope, not all of which is built yet.
 
 ## Features
@@ -34,7 +35,8 @@ interview take-home. See [clientBrief.md](./clientBrief.md) for the original cli
 - **Unit tests** — Vitest coverage for the rule engine and at-risk calculation, plus the assign form's
   validation and the at-risk badge (React Testing Library), all runnable via `npm run test`; Playwright
   e2e tests as time allows *(polish)*
-- **Error tracking** *(polish)* — Sentry for frontend and backend
+- **Error tracking** — Sentry for frontend (React error boundary) and backend (centralized error
+  middleware), one shared project for both
 
 ## Tech Stack
 

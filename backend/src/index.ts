@@ -1,9 +1,14 @@
+import * as Sentry from '@sentry/node';
 import express from 'express';
 import { Pool } from 'pg';
 import type { HealthResponse } from '@sbg/shared';
 import { installersRouter } from './routes/installers.js';
 import { jobsRouter } from './routes/jobs.js';
 import { notFoundHandler, errorHandler } from './middleware/error-handler.js';
+
+if (process.env.SENTRY_DSN) {
+  Sentry.init({ dsn: process.env.SENTRY_DSN, environment: process.env.VERCEL_ENV ?? 'development' });
+}
 
 const app = express();
 const port = process.env.PORT ?? 3001;

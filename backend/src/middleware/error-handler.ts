@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/node';
 import type { NextFunction, Request, Response } from 'express';
 
 export function notFoundHandler(req: Request, res: Response) {
@@ -12,5 +13,6 @@ export function errorHandler(err: unknown, _req: Request, res: Response, _next: 
   }
 
   console.error('Unhandled error:', err);
+  Sentry.captureException(err);
   res.status(500).json({ error: 'Internal server error' });
 }
