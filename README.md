@@ -5,9 +5,9 @@ view of job status, installer availability, and weather-driven scheduling risk. 
 interview take-home. See [clientBrief.md](./clientBrief.md) for the original client brief.
 
 > **Status:** in active development ahead of an interview deadline (2026-09-16). The deployment skeleton,
-> repo tooling, and data layer (Prisma schema, migrations, CSV seeding) are done; the API and UI are in
-> progress — see the commit history for current progress. Features and API below describe the target
-> scope, not all of which is built yet.
+> repo tooling, data layer (Prisma schema, migrations, CSV seeding), and backend API/scheduling rule
+> engine are done; the frontend UI is in progress — see the commit history for current progress. Features
+> and API below describe the target scope, not all of which is built yet.
 
 ## Features
 
@@ -106,8 +106,10 @@ SBGScheduler/
 │   │   ├── schema.prisma  # Installer/Job models, migrations against Neon
 │   │   └── seed.ts        # Seeds Neon from candidatepack_SBG/candidate/*.csv
 │   └── src/
-│       ├── index.ts        # Express entry point
-│       └── routes/         # installers, jobs (GET only so far)
+│       ├── index.ts    # Express entry point
+│       ├── lib/         # Prisma client, scheduling rule engine
+│       ├── middleware/  # Centralized error handling
+│       └── routes/      # installers, jobs (list, assign, reschedule)
 ├── frontend/
 │   └── src/           # Vite + React app
 ├── candidatepack_SBG/ # Sample jobs.csv / installers.csv + data dictionary for seeding
