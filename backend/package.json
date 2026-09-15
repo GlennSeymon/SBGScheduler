@@ -8,10 +8,17 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc -b && echo '{\"type\":\"module\"}' > dist/package.json",
     "start": "node dist/index.js",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "postinstall": "prisma generate",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "prisma db seed"
   },
   "dependencies": {
+    "@prisma/adapter-pg": "^7.10.0",
+    "@prisma/client": "^7.10.0",
     "@sbg/shared": "*",
+    "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "pg": "^8.16.3"
   },
@@ -20,8 +27,10 @@
     "@types/express": "^5.0.6",
     "@types/node": "^24.13.4",
     "@types/pg": "^8.15.6",
+    "csv-parse": "^7.0.2",
     "eslint": "^10.10.0",
     "globals": "^17.12.0",
+    "prisma": "^7.10.0",
     "tsx": "^4.23.13",
     "typescript": "^6.0.2",
     "typescript-eslint": "^8.70.0"

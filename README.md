@@ -4,9 +4,10 @@ An installer job scheduler for Solar Battery Group, replacing a spreadsheet-base
 view of job status, installer availability, and weather-driven scheduling risk. Built as part of an
 interview take-home. See [clientBrief.md](./clientBrief.md) for the original client brief.
 
-> **Status:** in active development ahead of an interview deadline (2026-09-16). The deployment skeleton
-> and repo tooling are done; the data layer, API, and UI are in progress — see the commit history for
-> current progress. Features and API below describe the target scope, not all of which is built yet.
+> **Status:** in active development ahead of an interview deadline (2026-09-16). The deployment skeleton,
+> repo tooling, and data layer (Prisma schema, migrations, CSV seeding) are done; the API and UI are in
+> progress — see the commit history for current progress. Features and API below describe the target
+> scope, not all of which is built yet.
 
 ## Features
 
@@ -62,14 +63,24 @@ npm install
 cp .env.example .env.local
 ```
 
-Edit `.env.local` and fill in your Neon connection string:
+Edit `.env.local` and fill in your Neon connection strings (both the pooled and direct/unpooled variants —
+Prisma Migrate needs the direct one, since Neon's pooled connection doesn't support the advisory locks it
+uses):
 
 ```
-DATABASE_URL="postgresql://..."
+DATABASE_URL="postgresql://...-pooler.../neondb?sslmode=require"
+DATABASE_URL_UNPOOLED="postgresql://.../neondb?sslmode=require"
 PORT=3001
 ```
 
-**3. Run the dev servers**
+**3. Set up the database**
+
+```bash
+npm run db:migrate --workspace=backend   # apply Prisma migrations to Neon
+npm run db:seed --workspace=backend      # seed from candidatepack_SBG/candidate/*.csv
+```
+
+**4. Run the dev servers**
 
 ```bash
 npm run dev   # shared (watch build), backend, and frontend concurrently
@@ -78,7 +89,7 @@ npm run dev   # shared (watch build), backend, and frontend concurrently
 Frontend: http://localhost:5173 (proxies `/api/*` to the backend)
 Backend: http://localhost:3001
 
-**4. Build / lint**
+**5. Build / lint**
 
 ```bash
 npm run build # build shared, then backend, then frontend, in that order
@@ -91,6 +102,9 @@ npm run lint  # lint all three workspaces
 SBGScheduler/
 ├── shared/            # Zod schemas + inferred types (@sbg/shared), used by frontend and backend
 ├── backend/
+│   ├── prisma/
+│   │   ├── schema.prisma  # Installer/Job models, migrations against Neon
+│   │   └── seed.ts        # Seeds Neon from candidatepack_SBG/candidate/*.csv
 │   └── src/
 │       └── index.ts   # Express entry point (health check today; jobs/installers API to come)
 ├── frontend/

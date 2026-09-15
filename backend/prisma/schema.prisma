@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client"
+  // Generated inside src/ so it stays under tsconfig's rootDir.
+  output   = "../src/generated"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Installers only operate within one state, and the sample data covers all
+// states in tech-stack.md's timezone mapping table even though only a subset
+// appear in the current CSVs.
+enum AustralianState {
+  NSW
+  VIC
+  QLD
+  SA
+  WA
+  NT
+  TAS
+  ACT
+}
+
+enum JobType {
+  BATTERY_INSTALL @map("Battery install")
+  SOLAR_BATTERY   @map("Solar + battery")
+  BATTERY_UPGRADE @map("Battery upgrade")
+}
+
+enum JobStatus {
+  UNSCHEDULED @map("unscheduled")
+  SCHEDULED   @map("scheduled")
+  CONFIRMED   @map("confirmed")
+  CANCELLED   @map("cancelled")
+}
+
+model Installer {
+  id          String           @id
+  name        String
+  state       AustralianState
+  homeBase    String           @map("home_base")
+  // e.g. ["Mon", "Tue", "Wed", "Thu", "Fri"]
+  workingDays String[]         @map("working_days")
+  // Local time "HH:mm" — converted against `state`'s IANA zone when checking rules (see tech-stack.md).
+  shiftStart  String           @map("shift_start")
+  shiftEnd    String           @map("shift_end")
+  leaveStart  DateTime?        @map("leave_start") @db.Date
+  leaveEnd    DateTime?        @map("leave_end") @db.Date
+  phone       String
+  jobs        Job[]
+
+  @@map("installers")
+}
+
+model Job {
+  id                  String           @id
+  customerName        String           @map("customer_name")
+  customerPhone       String           @map("customer_phone")
+  customerEmail       String           @map("customer_email")
+  siteAddress         String           @map("site_address")
+  suburb              String
+  state               AustralianState
+  postcode            String
+  jobType             JobType          @map("job_type")
+  batteryModel        String           @map("battery_model")
+  scheduledStart      DateTime?        @map("scheduled_start") @db.Timestamptz(3)
+  durationBlocks      Int              @map("duration_blocks")
+  status              JobStatus        @default(UNSCHEDULED)
+  assignedInstallerId String?          @map("assigned_installer_id")
+  assignedInstaller   Installer?       @relation(fields: [assignedInstallerId], references: [id])
+  notes               String?
+  createdAt           DateTime         @map("created_at") @db.Date
+
+  @@index([status])
+  @@index([assignedInstallerId, scheduledStart])
+  @@map("jobs")
+}
