@@ -4,11 +4,11 @@ An installer job scheduler for Solar Battery Group, replacing a spreadsheet-base
 view of job status, installer availability, and weather-driven scheduling risk. Built as part of an
 interview take-home. See [clientBrief.md](./clientBrief.md) for the original client brief.
 
-> **Status:** in active development ahead of an interview deadline (2026-09-16). The deployment skeleton,
-> repo tooling, data layer, backend API/scheduling rule engine, core frontend scheduling UI (jobs grid,
-> assign/reschedule), weather/geocoding/at-risk calculation (backend), and the at-risk badge/tooltip in the
-> jobs grid are done; the at-risk filter toggle is next — see the commit history for current progress.
-> Features and API below describe the target scope, not all of which is built yet.
+> **Status:** in active development ahead of an interview deadline (2026-09-16). Everything through Phase 7
+> is done — deployment skeleton, repo tooling, data layer, backend API/scheduling rule engine, core
+> frontend scheduling UI (jobs grid, assign/reschedule), weather/geocoding/at-risk calculation, and the
+> at-risk badge/tooltip + filter in the jobs grid; unit tests (Phase 8) are next — see the commit history
+> for current progress. Features and API below describe the target scope, not all of which is built yet.
 
 ## Features
 

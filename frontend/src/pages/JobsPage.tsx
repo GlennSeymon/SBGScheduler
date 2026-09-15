@@ -9,6 +9,8 @@ import Select, { type SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
+import Switch from '@mui/material/Switch';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import type { Job, JobWithRisk } from '@sbg/shared';
 import { useJobs } from '../api/useJobs';
@@ -17,6 +19,9 @@ import RescheduleDialog from '../components/RescheduleDialog';
 
 const FilterBar = styled(Box)(({ theme }) => ({
   marginBottom: theme.spacing(2),
+  display: 'flex',
+  alignItems: 'center',
+  gap: theme.spacing(2),
 }));
 
 const StatusFormControl = styled(FormControl)(({ theme }) => ({
@@ -117,13 +122,16 @@ const baseColumns: GridColDef<JobWithRisk>[] = [
 const JobsPage = () => {
   const { data, isLoading, isError } = useJobs();
   const [statusFilter, setStatusFilter] = useState<StatusFilterValue>('ALL');
+  const [atRiskOnly, setAtRiskOnly] = useState(false);
   const [assigningJob, setAssigningJob] = useState<Job | null>(null);
   const [reschedulingJob, setReschedulingJob] = useState<Job | null>(null);
 
   const rows = useMemo(() => {
     if (!data) return [];
-    return statusFilter === 'ALL' ? data : data.filter((job) => job.status === statusFilter);
-  }, [data, statusFilter]);
+    return data
+      .filter((job) => statusFilter === 'ALL' || job.status === statusFilter)
+      .filter((job) => !atRiskOnly || job.isAtRisk);
+  }, [data, statusFilter, atRiskOnly]);
 
   const columns = useMemo<GridColDef<JobWithRisk>[]>(
     () => [
@@ -183,6 +191,15 @@ const JobsPage = () => {
             ))}
           </Select>
         </StatusFormControl>
+        <FormControlLabel
+          control={
+            <Switch
+              checked={atRiskOnly}
+              onChange={(event) => setAtRiskOnly(event.target.checked)}
+            />
+          }
+          label="At risk only"
+        />
       </FilterBar>
       <GridWrapper>
         <DataGrid
