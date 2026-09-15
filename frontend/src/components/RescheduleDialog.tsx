@@ -12,11 +12,11 @@ import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import { styled } from '@mui/material/styles';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
-import { assignJobSchema, type AssignJobInput, type Job } from '@sbg/shared';
+import { rescheduleJobSchema, type RescheduleJobInput, type Job } from '@sbg/shared';
 import { isAxiosError } from 'axios';
 import { Controller, useForm } from 'react-hook-form';
-import { useAssignJob } from '../api/useAssignJob';
 import { useEligibleInstallers } from '../api/useEligibleInstallers';
+import { useRescheduleJob } from '../api/useRescheduleJob';
 
 const Form = styled('form')(({ theme }) => ({
   display: 'flex',
@@ -40,39 +40,42 @@ interface RuleViolation {
   message: string;
 }
 
-interface AssignErrorResponse {
+interface RescheduleErrorResponse {
   error: string;
   violations?: RuleViolation[];
 }
 
-interface AssignDialogProps {
+interface RescheduleDialogProps {
   job: Job;
   open: boolean;
   onClose: () => void;
 }
 
-const AssignDialog = ({ job, open, onClose }: AssignDialogProps) => {
+const RescheduleDialog = ({ job, open, onClose }: RescheduleDialogProps) => {
   const eligibleInstallers = useEligibleInstallers(job.state);
-  const assignJob = useAssignJob();
+  const rescheduleJob = useRescheduleJob();
 
   const {
     control,
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<AssignJobInput>({
-    resolver: zodResolver(assignJobSchema),
-    defaultValues: { installerId: '', scheduledStart: '' },
+  } = useForm<RescheduleJobInput>({
+    resolver: zodResolver(rescheduleJobSchema),
+    defaultValues: {
+      installerId: job.assignedInstallerId ?? undefined,
+      scheduledStart: job.scheduledStart ?? undefined,
+    },
   });
 
   const handleClose = () => {
     reset();
-    assignJob.reset();
+    rescheduleJob.reset();
     onClose();
   };
 
   const onSubmit = handleSubmit((input) => {
-    assignJob.mutate(
+    rescheduleJob.mutate(
       { jobId: job.id, input },
       {
         onSuccess: handleClose,
@@ -80,13 +83,13 @@ const AssignDialog = ({ job, open, onClose }: AssignDialogProps) => {
     );
   });
 
-  const errorResponse = isAxiosError<AssignErrorResponse>(assignJob.error)
-    ? assignJob.error.response?.data
+  const errorResponse = isAxiosError<RescheduleErrorResponse>(rescheduleJob.error)
+    ? rescheduleJob.error.response?.data
     : undefined;
 
   return (
     <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
-      <DialogTitle>Assign {job.id}</DialogTitle>
+      <DialogTitle>Reschedule {job.id}</DialogTitle>
       <Form onSubmit={onSubmit}>
         <DialogContent>
           {errorResponse?.violations && errorResponse.violations.length > 0 ? (
@@ -105,10 +108,11 @@ const AssignDialog = ({ job, open, onClose }: AssignDialogProps) => {
               control={control}
               render={({ field }) => (
                 <FormControl fullWidth error={!!errors.installerId}>
-                  <InputLabel id="assign-installer-label">Installer</InputLabel>
+                  <InputLabel id="reschedule-installer-label">Installer</InputLabel>
                   <Select
                     {...field}
-                    labelId="assign-installer-label"
+                    value={field.value ?? ''}
+                    labelId="reschedule-installer-label"
                     label="Installer"
                   >
                     {eligibleInstallers.map((installer) => (
@@ -129,7 +133,7 @@ const AssignDialog = ({ job, open, onClose }: AssignDialogProps) => {
                   label="Scheduled start"
                   value={field.value ? new Date(field.value) : null}
                   onChange={(newValue) =>
-                    field.onChange(newValue ? newValue.toISOString() : '')
+                    field.onChange(newValue ? newValue.toISOString() : undefined)
                   }
                   slotProps={{
                     textField: {
@@ -145,12 +149,8 @@ const AssignDialog = ({ job, open, onClose }: AssignDialogProps) => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
-          <Button
-            type="submit"
-            variant="contained"
-            loading={assignJob.isPending}
-          >
-            Assign
+          <Button type="submit" variant="contained" loading={rescheduleJob.isPending}>
+            Reschedule
           </Button>
         </DialogActions>
       </Form>
@@ -158,4 +158,4 @@ const AssignDialog = ({ job, open, onClose }: AssignDialogProps) => {
   );
 };
 
-export default AssignDialog;
+export default RescheduleDialog;

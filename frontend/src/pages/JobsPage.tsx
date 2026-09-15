@@ -11,6 +11,7 @@ import Button from '@mui/material/Button';
 import type { Job } from '@sbg/shared';
 import { useJobs } from '../api/useJobs';
 import AssignDialog from '../components/AssignDialog';
+import RescheduleDialog from '../components/RescheduleDialog';
 
 const FilterBar = styled(Box)(({ theme }) => ({
   marginBottom: theme.spacing(2),
@@ -90,6 +91,7 @@ const JobsPage = () => {
   const { data, isLoading, isError } = useJobs();
   const [statusFilter, setStatusFilter] = useState<StatusFilterValue>('ALL');
   const [assigningJob, setAssigningJob] = useState<Job | null>(null);
+  const [reschedulingJob, setReschedulingJob] = useState<Job | null>(null);
 
   const rows = useMemo(() => {
     if (!data) return [];
@@ -104,13 +106,24 @@ const JobsPage = () => {
         headerName: 'Actions',
         sortable: false,
         filterable: false,
-        minWidth: 110,
-        renderCell: (params: GridRenderCellParams<Job>) =>
-          params.row.status === 'UNSCHEDULED' ? (
-            <Button size="small" onClick={() => setAssigningJob(params.row)}>
-              Assign
-            </Button>
-          ) : null,
+        minWidth: 130,
+        renderCell: (params: GridRenderCellParams<Job>) => {
+          if (params.row.status === 'UNSCHEDULED') {
+            return (
+              <Button size="small" onClick={() => setAssigningJob(params.row)}>
+                Assign
+              </Button>
+            );
+          }
+          if (params.row.status === 'SCHEDULED' || params.row.status === 'CONFIRMED') {
+            return (
+              <Button size="small" onClick={() => setReschedulingJob(params.row)}>
+                Reschedule
+              </Button>
+            );
+          }
+          return null;
+        },
       },
     ],
     [],
@@ -155,6 +168,13 @@ const JobsPage = () => {
       </GridWrapper>
       {assigningJob && (
         <AssignDialog job={assigningJob} open={!!assigningJob} onClose={() => setAssigningJob(null)} />
+      )}
+      {reschedulingJob && (
+        <RescheduleDialog
+          job={reschedulingJob}
+          open={!!reschedulingJob}
+          onClose={() => setReschedulingJob(null)}
+        />
       )}
     </>
   );
