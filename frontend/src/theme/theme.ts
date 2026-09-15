@@ -5,7 +5,7 @@ import { createTheme, type PaletteMode } from '@mui/material/styles';
 // --surface, --muted, --grey, --red-600, --green-500. Confirms the logo-derived blue/yellow
 // exactly, and supplies the rest of the semantic palette. Their site has no dark mode, so the
 // dark values below extend the same brand rather than copying anything.
-const brandBlue = '#1d1dff';
+export const brandBlue = '#1d1dff';
 const brandYellow = '#ffdb14';
 
 const lightSurface = '#f8f9fa'; // SBG --surface

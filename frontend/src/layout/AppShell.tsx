@@ -13,6 +13,7 @@ import DarkModeIcon from '@mui/icons-material/DarkMode';
 import { AiOutlineSchedule } from 'react-icons/ai';
 import sbgLogo from '../assets/sbg-logo.png';
 import { useColorMode } from '../theme/ColorModeContext';
+import { brandBlue } from '../theme/theme';
 
 const Root = styled(Box)({
   display: 'flex',
@@ -62,9 +63,15 @@ const MainContainer = styled(Container)(({ theme }) => ({
   paddingBottom: theme.spacing(3),
 })) as typeof Container;
 
+const StyledAppBar = styled(AppBar)({
+  backgroundColor: brandBlue,
+  backgroundImage: 'none',
+  color: '#ffffff',
+});
+
 const Footer = styled(Box)(({ theme }) => ({
-  backgroundColor: theme.palette.primary.main,
-  color: theme.palette.primary.contrastText,
+  backgroundColor: brandBlue,
+  color: '#ffffff',
   paddingTop: theme.spacing(2),
   paddingBottom: theme.spacing(2),
 })) as typeof Box;
@@ -75,7 +82,7 @@ const AppShell = () => {
 
   return (
     <Root>
-      <AppBar position="static" enableColorOnDark>
+      <StyledAppBar position="static" enableColorOnDark>
         <StyledToolbar disableGutters>
           <FlexContainer maxWidth={false}>
             <TitleGroup>
@@ -104,7 +111,7 @@ const AppShell = () => {
           <Tab label="Jobs" value="/" component={NavLink} to="/" />
           <Tab label="Dashboard" value="/dashboard" component={NavLink} to="/dashboard" />
         </NavTabs>
-      </AppBar>
+      </StyledAppBar>
       <MainContainer component="main" maxWidth={false}>
         <Outlet />
       </MainContainer>
