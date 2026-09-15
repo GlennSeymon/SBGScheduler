@@ -3,6 +3,7 @@ import Grid from '@mui/material/Grid';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
+import Skeleton from '@mui/material/Skeleton';
 import { styled } from '@mui/material/styles';
 import { PieChart } from '@mui/x-charts/PieChart';
 import { BarChart } from '@mui/x-charts/BarChart';
@@ -27,6 +28,13 @@ const CardValue = styled(Typography)({
 const ChartCard = styled(Card)({
   height: '100%',
 });
+
+const CardValueSkeleton = styled(Skeleton)({
+  marginTop: 4,
+});
+
+// Total + one per status + at-risk + unassigned — kept in sync with `cards` below.
+const SUMMARY_CARD_SKELETON_COUNT = 7;
 
 const STATUS_LABELS: Record<Job['status'], string> = {
   UNSCHEDULED: 'Unscheduled',
@@ -103,7 +111,36 @@ const DashboardPage = () => {
   }
 
   if (jobsLoading || installersLoading) {
-    return <Typography>Loading dashboard…</Typography>;
+    return (
+      <Grid container spacing={2}>
+        {Array.from({ length: SUMMARY_CARD_SKELETON_COUNT }).map((_, index) => (
+          <Grid key={index} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+            <SummaryCard>
+              <CardContent>
+                <Skeleton variant="text" width="60%" />
+                <CardValueSkeleton variant="text" width="40%" height={40} />
+              </CardContent>
+            </SummaryCard>
+          </Grid>
+        ))}
+        <Grid size={{ xs: 12, md: 6 }}>
+          <ChartCard>
+            <CardContent>
+              <Skeleton variant="text" width="50%" />
+              <Skeleton variant="rectangular" height={300} />
+            </CardContent>
+          </ChartCard>
+        </Grid>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <ChartCard>
+            <CardContent>
+              <Skeleton variant="text" width="50%" />
+              <Skeleton variant="rectangular" height={300} />
+            </CardContent>
+          </ChartCard>
+        </Grid>
+      </Grid>
+    );
   }
 
   return (

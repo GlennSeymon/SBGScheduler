@@ -10,7 +10,8 @@ interview take-home. See [clientBrief.md](./clientBrief.md) for the original cli
 > at-risk badge/tooltip + filter in the jobs grid, unit tests (backend rule engine/at-risk, frontend
 > assign-form-validation/at-risk-badge, all runnable via `npm run test`), and MVP deploy/verification to
 > Vercel. Phase 10 (dashboard polish) is also done — summary cards plus jobs-by-status and
-> installer-utilization charts. Phase 11 (UX polish) is next — see the commit history for current progress.
+> installer-utilization charts. Phase 11 (UX polish) is in progress — Snackbar feedback and skeleton
+> loaders are done, RHF validation/messaging polish is next — see the commit history for current progress.
 > Features and API below describe the target scope, not all of which is built yet.
 
 ## Features
@@ -28,7 +29,8 @@ interview take-home. See [clientBrief.md](./clientBrief.md) for the original cli
   installer utilization by scheduled hours)
 - **SBG branding** — palette derived from the Solar Battery Group logo, light/dark theme toggle
 - **Snackbar notifications** — success/error feedback for assign and reschedule actions
-- **Skeleton loaders** *(polish)* — loading states across the UI
+- **Skeleton loaders** — loading states for the jobs grid (MUI X's default skeleton-row overlay) and the
+  dashboard (summary cards + charts)
 - **Unit tests** — Vitest coverage for the rule engine and at-risk calculation, plus the assign form's
   validation and the at-risk badge (React Testing Library), all runnable via `npm run test`; Playwright
   e2e tests as time allows *(polish)*
