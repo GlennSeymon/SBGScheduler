@@ -2,7 +2,7 @@ import { formatInTimeZone } from 'date-fns-tz';
 import { AustralianState } from '../generated/enums.js';
 
 // See tech-stack.md → Timezone handling for why each state keeps its own zone (not all NSW's).
-const STATE_TIME_ZONES: Record<AustralianState, string> = {
+export const STATE_TIME_ZONES: Record<AustralianState, string> = {
   NSW: 'Australia/Sydney',
   VIC: 'Australia/Melbourne',
   TAS: 'Australia/Hobart',

@@ -39,3 +39,17 @@ export interface Job {
   notes: string | null;
   createdAt: string;
 }
+
+export type AtRiskRule = 'BAD_WEATHER' | 'UNASSIGNED_STARTING_SOON';
+
+export interface AtRiskReason {
+  rule: AtRiskRule;
+  message: string;
+}
+
+// GET /api/jobs enriches each job with at-risk info (see Phase 6); the assign/reschedule PATCH
+// responses don't, so they stay typed as plain `Job`.
+export interface JobWithRisk extends Job {
+  isAtRisk: boolean;
+  atRiskReasons: AtRiskReason[];
+}

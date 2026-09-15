@@ -151,7 +151,7 @@ configuration is required in development.
 |---|---|---|---|
 | `GET` | `/api/health` | Health check — confirms the API and Neon DB are reachable | Live |
 | `GET` | `/api/installers` | List installers | Live |
-| `GET` | `/api/jobs` | List jobs (all fields, including at-risk flag once Phase 6 lands) | Live |
+| `GET` | `/api/jobs` | List jobs (all fields, including the at-risk flag/reasons) | Live |
 | `PATCH` | `/api/jobs/:id/assign` | Assign an unscheduled job to an installer + start time, enforcing scheduling rules | Live |
 | `PATCH` | `/api/jobs/:id/reschedule` | Change time and/or installer on a scheduled job, enforcing scheduling rules | Live |
 
