@@ -1,12 +1,15 @@
 import express from 'express';
 import { Pool } from 'pg';
 import type { HealthResponse } from '@sbg/shared';
+import { installersRouter } from './routes/installers.js';
 
 const app = express();
 const port = process.env.PORT ?? 3001;
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
 app.use(express.json());
+
+app.use('/api/installers', installersRouter);
 
 app.get('/api/health', async (_req, res) => {
   try {
