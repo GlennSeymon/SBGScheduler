@@ -10,8 +10,8 @@ interview take-home. See [clientBrief.md](./clientBrief.md) for the original cli
 > at-risk badge/tooltip + filter in the jobs grid, unit tests (backend rule engine/at-risk, frontend
 > assign-form-validation/at-risk-badge, all runnable via `npm run test`), and MVP deploy/verification to
 > Vercel. Phase 10 (dashboard polish) is also done — summary cards plus jobs-by-status and
-> installer-utilization charts. Phase 11 (UX polish) is in progress — Snackbar feedback and skeleton
-> loaders are done, RHF validation/messaging polish is next — see the commit history for current progress.
+> installer-utilization charts. Phase 11 (UX polish) is done — Snackbar feedback, skeleton loaders, and
+> RHF validation/messaging polish are all in — see the commit history for current progress.
 > Features and API below describe the target scope, not all of which is built yet.
 
 ## Features

@@ -6,7 +6,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { enAU } from 'date-fns/locale';
 import type { Installer, Job } from '@sbg/shared';
-import AssignDialog from './AssignDialog';
+import RescheduleDialog from './RescheduleDialog';
 import { apiClient } from '../api/client';
 import NotificationProvider from '../notifications/NotificationProvider';
 
@@ -24,7 +24,7 @@ const installer: Installer = {
 };
 
 const job: Job = {
-  id: 'J-9001',
+  id: 'J-9002',
   customerName: 'Test Customer',
   customerPhone: '0400 000 000',
   customerEmail: 'test@example.com',
@@ -34,73 +34,71 @@ const job: Job = {
   postcode: '3000',
   jobType: 'BATTERY_INSTALL',
   batteryModel: 'Test Battery',
+  // Neither field set, so the form's default values start empty — lets the "submit with
+  // nothing changed" test below hit the schema's whole-object refine directly.
   scheduledStart: null,
   durationBlocks: 2,
-  status: 'UNSCHEDULED',
+  status: 'SCHEDULED',
   assignedInstallerId: null,
   assignedInstaller: null,
   notes: null,
   createdAt: '2026-09-01T00:00:00Z',
 };
 
-function renderAssignDialog() {
+function renderRescheduleDialog() {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
     <QueryClientProvider client={queryClient}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={enAU}>
         <NotificationProvider>
-          <AssignDialog job={job} open onClose={() => {}} />
+          <RescheduleDialog job={job} open onClose={() => {}} />
         </NotificationProvider>
       </LocalizationProvider>
     </QueryClientProvider>,
   );
 }
 
-describe('AssignDialog validation', () => {
+describe('RescheduleDialog validation', () => {
   beforeEach(() => {
     vi.spyOn(apiClient, 'get').mockResolvedValue({ data: [installer] });
     vi.spyOn(apiClient, 'patch').mockResolvedValue({ data: job });
   });
 
-  it('rejects submission with no installer selected and no time set', async () => {
+  it('rejects submission when neither installer nor time is set, with a form-level message', async () => {
     const user = userEvent.setup();
-    renderAssignDialog();
+    renderRescheduleDialog();
 
-    // Wait for the eligible-installers query to resolve so the Select has its options.
     await waitFor(() => expect(apiClient.get).toHaveBeenCalledWith('/installers'));
 
-    await user.click(screen.getByRole('button', { name: /assign/i }));
+    // Submitting with both fields still at their empty defaults trips the schema's
+    // whole-object refine ("provide at least one") — it has no field to attach to, so it
+    // must render as a form-level alert rather than a per-field helper text.
+    await user.click(screen.getByRole('button', { name: /reschedule/i }));
 
     await waitFor(() =>
-      expect(document.getElementById('assign-installer-label')).toHaveClass('Mui-error'),
+      expect(screen.getByText('Provide a new installer and/or start time')).toBeInTheDocument(),
     );
-    expect(screen.getByText('Select an installer')).toBeInTheDocument();
-    expect(screen.getByText('Enter a valid date and time')).toBeInTheDocument();
     expect(apiClient.patch).not.toHaveBeenCalled();
   });
 
-  it('rejects submission with an invalid/empty scheduled time, even once an installer is selected', async () => {
+  it('clears the form-level error once an installer is selected', async () => {
     const user = userEvent.setup();
-    renderAssignDialog();
+    renderRescheduleDialog();
 
     await waitFor(() => expect(apiClient.get).toHaveBeenCalledWith('/installers'));
 
-    // First submit attempt populates formState.errors for both fields.
-    await user.click(screen.getByRole('button', { name: /assign/i }));
+    await user.click(screen.getByRole('button', { name: /reschedule/i }));
     await waitFor(() =>
-      expect(document.getElementById('assign-installer-label')).toHaveClass('Mui-error'),
+      expect(screen.getByText('Provide a new installer and/or start time')).toBeInTheDocument(),
     );
 
-    // Selecting an installer re-validates and clears just that field's error.
     await user.click(screen.getByRole('combobox', { name: 'Installer' }));
     await user.click(await screen.findByRole('option', { name: installer.name }));
-    await user.click(screen.getByRole('button', { name: /assign/i }));
+    await user.click(screen.getByRole('button', { name: /reschedule/i }));
 
-    await waitFor(() =>
-      expect(document.getElementById('assign-installer-label')).not.toHaveClass('Mui-error'),
-    );
-    expect(screen.queryByText('Select an installer')).not.toBeInTheDocument();
-    expect(screen.getByText('Enter a valid date and time')).toBeInTheDocument();
-    expect(apiClient.patch).not.toHaveBeenCalled();
+    await waitFor(() => expect(apiClient.patch).toHaveBeenCalled());
+    expect(
+      screen.queryByText('Provide a new installer and/or start time'),
+    ).not.toBeInTheDocument();
   });
 });

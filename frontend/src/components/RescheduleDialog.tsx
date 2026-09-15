@@ -7,13 +7,14 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import FormControl from '@mui/material/FormControl';
+import FormHelperText from '@mui/material/FormHelperText';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import { styled } from '@mui/material/styles';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { rescheduleJobSchema, type RescheduleJobInput, type Job } from '@sbg/shared';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, type FieldErrors } from 'react-hook-form';
 import { useEligibleInstallers } from '../api/useEligibleInstallers';
 import { useRescheduleJob } from '../api/useRescheduleJob';
 import { getApiErrorResponse, getErrorMessage } from '../api/errors';
@@ -82,13 +83,19 @@ const RescheduleDialog = ({ job, open, onClose }: RescheduleDialogProps) => {
   });
 
   const errorResponse = getApiErrorResponse(rescheduleJob.error);
+  // rescheduleJobSchema's whole-object .refine() has no field path, so zodResolver
+  // reports it under the empty-string key rather than a named field.
+  const formLevelError = (errors as FieldErrors<RescheduleJobInput> & Record<string, { message?: string } | undefined>)['']
+    ?.message;
 
   return (
     <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
       <DialogTitle>Reschedule {job.id}</DialogTitle>
       <Form onSubmit={onSubmit}>
         <DialogContent>
-          {errorResponse?.violations && errorResponse.violations.length > 0 ? (
+          {formLevelError ? (
+            <ErrorAlert severity="error">{formLevelError}</ErrorAlert>
+          ) : errorResponse?.violations && errorResponse.violations.length > 0 ? (
             <ErrorAlert severity="error">
               {errorResponse.violations.map((violation) => (
                 <div key={violation.rule}>{violation.message}</div>
@@ -117,6 +124,7 @@ const RescheduleDialog = ({ job, open, onClose }: RescheduleDialogProps) => {
                       </MenuItem>
                     ))}
                   </Select>
+                  <FormHelperText>{errors.installerId?.message}</FormHelperText>
                 </FormControl>
               )}
             />
@@ -128,9 +136,13 @@ const RescheduleDialog = ({ job, open, onClose }: RescheduleDialogProps) => {
                 <DateTimePicker
                   label="Scheduled start"
                   value={field.value ? new Date(field.value) : null}
-                  onChange={(newValue) =>
-                    field.onChange(newValue ? newValue.toISOString() : undefined)
-                  }
+                  onChange={(newValue) => {
+                    if (!newValue || Number.isNaN(newValue.getTime())) {
+                      field.onChange(undefined);
+                      return;
+                    }
+                    field.onChange(newValue.toISOString());
+                  }}
                   slotProps={{
                     textField: {
                       fullWidth: true,

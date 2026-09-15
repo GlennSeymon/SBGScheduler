@@ -7,6 +7,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import FormControl from '@mui/material/FormControl';
+import FormHelperText from '@mui/material/FormHelperText';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
@@ -113,6 +114,7 @@ const AssignDialog = ({ job, open, onClose }: AssignDialogProps) => {
                       </MenuItem>
                     ))}
                   </Select>
+                  <FormHelperText>{errors.installerId?.message}</FormHelperText>
                 </FormControl>
               )}
             />
@@ -124,9 +126,13 @@ const AssignDialog = ({ job, open, onClose }: AssignDialogProps) => {
                 <DateTimePicker
                   label="Scheduled start"
                   value={field.value ? new Date(field.value) : null}
-                  onChange={(newValue) =>
-                    field.onChange(newValue ? newValue.toISOString() : '')
-                  }
+                  onChange={(newValue) => {
+                    if (!newValue || Number.isNaN(newValue.getTime())) {
+                      field.onChange('');
+                      return;
+                    }
+                    field.onChange(newValue.toISOString());
+                  }}
                   slotProps={{
                     textField: {
                       fullWidth: true,
