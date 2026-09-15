@@ -107,7 +107,7 @@ SBGScheduler/
 │   │   └── seed.ts        # Seeds Neon from candidatepack_SBG/candidate/*.csv
 │   └── src/
 │       ├── index.ts        # Express entry point
-│       └── routes/         # installers live; jobs API to come
+│       └── routes/         # installers, jobs (GET only so far)
 ├── frontend/
 │   └── src/           # Vite + React app
 ├── candidatepack_SBG/ # Sample jobs.csv / installers.csv + data dictionary for seeding
@@ -148,7 +148,7 @@ configuration is required in development.
 |---|---|---|---|
 | `GET` | `/api/health` | Health check — confirms the API and Neon DB are reachable | Live |
 | `GET` | `/api/installers` | List installers | Live |
-| `GET` | `/api/jobs` | List jobs (all fields, including at-risk flag) | Planned |
+| `GET` | `/api/jobs` | List jobs (all fields, including at-risk flag once Phase 4 lands) | Live |
 | `PATCH` | `/api/jobs/:id/assign` | Assign an unscheduled job to an installer + start time | Planned |
 | `PATCH` | `/api/jobs/:id/reschedule` | Change time and/or installer on a scheduled job | Planned |
 
