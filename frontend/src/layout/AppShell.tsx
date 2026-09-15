@@ -5,7 +5,11 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
+import IconButton from '@mui/material/IconButton';
+import LightModeIcon from '@mui/icons-material/LightMode';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
 import sbgLogo from '../assets/sbg-logo.png';
+import { useColorMode } from '../theme/ColorModeContext';
 
 const Root = styled(Box)({
   display: 'flex',
@@ -29,6 +33,12 @@ const Logo = styled('img')({
   width: 80,
 });
 
+const HeaderActions = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  gap: theme.spacing(1.5),
+}));
+
 const MainContainer = styled(Container)(({ theme }) => ({
   flex: 1,
   paddingTop: theme.spacing(3),
@@ -43,6 +53,8 @@ const Footer = styled(Box)(({ theme }) => ({
 })) as typeof Box;
 
 const AppShell = () => {
+  const { mode, toggleMode } = useColorMode();
+
   return (
     <Root>
       <AppBar position="static">
@@ -51,7 +63,16 @@ const AppShell = () => {
             <Typography variant="h5" component="h1">
               Scheduler
             </Typography>
-            <Logo src={sbgLogo} alt="Solar Battery Group" />
+            <HeaderActions>
+              <IconButton
+                onClick={toggleMode}
+                aria-label={mode === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+                color="inherit"
+              >
+                {mode === 'light' ? <DarkModeIcon /> : <LightModeIcon />}
+              </IconButton>
+              <Logo src={sbgLogo} alt="Solar Battery Group" />
+            </HeaderActions>
           </FlexContainer>
         </StyledToolbar>
       </AppBar>
