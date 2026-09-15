@@ -4,18 +4,6 @@ An installer job scheduler for Solar Battery Group, replacing a spreadsheet-base
 view of job status, installer availability, and weather-driven scheduling risk. Built as part of an
 interview take-home. See [clientBrief.md](./clientBrief.md) for the original client brief.
 
-> **Status:** in active development ahead of an interview deadline (2026-09-16). Everything through Phase 9
-> is done — deployment skeleton, repo tooling, data layer, backend API/scheduling rule engine, core
-> frontend scheduling UI (jobs grid, assign/reschedule), weather/geocoding/at-risk calculation, the
-> at-risk badge/tooltip + filter in the jobs grid, unit tests (backend rule engine/at-risk, frontend
-> assign-form-validation/at-risk-badge, all runnable via `npm run test`), and MVP deploy/verification to
-> Vercel. Phase 10 (dashboard polish) is also done — summary cards plus jobs-by-status and
-> installer-utilization charts. Phase 11 (UX polish) is done — Snackbar feedback, skeleton loaders, and
-> RHF validation/messaging polish are all in. Phase 12 (observability) is done — Sentry error tracking is
-> wired up for both frontend and backend. Phase 14 (stretch: second integration) is done — public holiday
-> scheduling restriction, backend and frontend — see the commit history for current progress. Features and
-> API below describe the target scope, not all of which is built yet.
-
 ## Features
 
 - **Jobs data grid** — table of all jobs with column sorting, pagination, and a status filter
