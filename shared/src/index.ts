@@ -4,3 +4,4 @@ export interface HealthResponse {
 }
 
 export * from './job-schemas.js';
+export * from './domain-types.js';
