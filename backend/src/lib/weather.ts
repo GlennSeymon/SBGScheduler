@@ -1,4 +1,6 @@
+import ms from 'ms';
 import type { Coordinates } from './geocoding.js';
+import { TtlCache } from './ttl-cache.js';
 
 export interface DailyForecast {
   /** Local date (yyyy-mm-dd) in the forecast location's own timezone. */
@@ -66,6 +68,9 @@ function isAllNull(daily: OpenMeteoDaily | undefined): boolean {
   ].every((series) => series.every((value) => value === null));
 }
 
+const FORECAST_CACHE_TTL_MS = ms('30m');
+const cache = new TtlCache<DailyForecast[]>(FORECAST_CACHE_TTL_MS);
+
 /**
  * lat/lon -> up to 16 days of daily forecast. Requests the `bom_access_global` model first (see
  * tech-stack.md's rationale — genuinely BOM/ACCESS-G sourced) but falls back to Open-Meteo's
@@ -73,8 +78,17 @@ function isAllNull(daily: OpenMeteoDaily | undefined): boolean {
  * open-data delivery is suspended for platform upgrades as of 2026-09-15 (confirmed live — every
  * field null for every day), and this can't be allowed to break the demo if it's still down
  * tomorrow. `source` on each entry records which model actually answered.
+ *
+ * Cached for 30 minutes per coordinate — long enough to avoid re-hitting Open-Meteo on every
+ * `/api/jobs` poll, short enough that the forecast doesn't go stale for long.
  */
 export async function getForecast(coordinates: Coordinates): Promise<DailyForecast[]> {
+  // Round to ~11m precision so trivially-different floats for the same location share a cache entry.
+  const key = `${coordinates.latitude.toFixed(4)},${coordinates.longitude.toFixed(4)}`;
+  return cache.getOrCompute(key, () => fetchForecast(coordinates));
+}
+
+async function fetchForecast(coordinates: Coordinates): Promise<DailyForecast[]> {
   let daily = await fetchDaily(coordinates, 'bom_access_global');
   let source: DailyForecast['source'] = 'bom_access_global';
 

@@ -12,8 +12,8 @@ const ACTIVE_STATUSES = [JobStatus.SCHEDULED, JobStatus.CONFIRMED];
 
 export const jobsRouter = Router();
 
-// Geocoding + weather aren't cached yet (that's 6.5) — for now, just dedupe within a single request so
-// jobs sharing a suburb (common in the seeded data) don't trigger repeat lookups.
+// geocodeSuburb/getForecast cache their own results (see ttl-cache.ts) — including deduping concurrent
+// calls for the same key — so no request-level dedup is needed here.
 //
 // Any failure here (geocoding down, weather API down, a network blip) is caught unconditionally, not
 // just our own GeocodingError/WeatherError — /api/jobs is the app's core data endpoint and must keep
@@ -21,24 +21,15 @@ export const jobsRouter = Router();
 async function forecastForSuburb(
   suburb: string,
   state: AustralianState,
-  cache: Map<string, Promise<DailyForecast[] | null>>,
 ): Promise<DailyForecast[] | null> {
-  const key = `${suburb}|${state}`;
-  let pending = cache.get(key);
-  if (!pending) {
-    pending = (async () => {
-      try {
-        const coordinates = await geocodeSuburb(suburb, state);
-        return await getForecast(coordinates);
-      } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        console.error(`At-risk: weather lookup failed for ${suburb}, ${state}: ${message}`);
-        return null;
-      }
-    })();
-    cache.set(key, pending);
+  try {
+    const coordinates = await geocodeSuburb(suburb, state);
+    return await getForecast(coordinates);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`At-risk: weather lookup failed for ${suburb}, ${state}: ${message}`);
+    return null;
   }
-  return pending;
 }
 
 jobsRouter.get('/', async (_req, res) => {
@@ -48,14 +39,13 @@ jobsRouter.get('/', async (_req, res) => {
   });
 
   const now = new Date();
-  const forecastCache = new Map<string, Promise<DailyForecast[] | null>>();
 
   const jobsWithRisk = await Promise.all(
     jobs.map(async (job) => {
       let forecastForDate: DailyForecast | undefined;
 
       if (job.scheduledStart) {
-        const forecasts = await forecastForSuburb(job.suburb, job.state, forecastCache);
+        const forecasts = await forecastForSuburb(job.suburb, job.state);
         if (forecasts) {
           const localDate = formatInTimeZone(
             job.scheduledStart,

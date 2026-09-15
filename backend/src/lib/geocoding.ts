@@ -1,4 +1,6 @@
+import ms from 'ms';
 import { AustralianState } from '../generated/enums.js';
+import { TtlCache } from './ttl-cache.js';
 
 export interface Coordinates {
   latitude: number;
@@ -31,10 +33,16 @@ const STATE_ADMIN1_NAMES: Record<AustralianState, string> = {
 
 export class GeocodingError extends Error {}
 
-export async function geocodeSuburb(
-  suburb: string,
-  state: AustralianState,
-): Promise<Coordinates> {
+// A suburb's coordinates don't change, so a long TTL is fine — this just avoids re-hitting Open-Meteo's
+// geocoding API for the same suburb on every request.
+const GEOCODING_CACHE_TTL_MS = ms('1d');
+const cache = new TtlCache<Coordinates>(GEOCODING_CACHE_TTL_MS);
+
+export async function geocodeSuburb(suburb: string, state: AustralianState): Promise<Coordinates> {
+  return cache.getOrCompute(`${suburb}|${state}`, () => fetchCoordinates(suburb, state));
+}
+
+async function fetchCoordinates(suburb: string, state: AustralianState): Promise<Coordinates> {
   const url = new URL('https://geocoding-api.open-meteo.com/v1/search');
   url.searchParams.set('name', suburb);
   url.searchParams.set('count', '20');

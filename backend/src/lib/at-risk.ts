@@ -1,3 +1,4 @@
+import ms from 'ms';
 import { JobStatus } from '../generated/enums.js';
 import type { DailyForecast } from './weather.js';
 
@@ -21,7 +22,7 @@ const WEATHER_CODE_LABELS: Record<number, string> = {
 const HIGH_PRECIPITATION_PROBABILITY_PERCENT = 70;
 const HIGH_WIND_SPEED_KMH = 40;
 
-export const UNASSIGNED_STARTING_SOON_HOURS = 72;
+export const UNASSIGNED_STARTING_SOON_MS = ms('3d');
 
 export interface AtRiskJob {
   status: JobStatus;
@@ -83,15 +84,15 @@ export function checkUnassignedStartingSoon(job: AtRiskJob, now: Date): AtRiskRe
   if (job.assignedInstallerId !== null) return null;
   if (job.scheduledStart === null) return null;
 
-  const hoursUntilStart = (job.scheduledStart.getTime() - now.getTime()) / (60 * 60 * 1000);
-  if (hoursUntilStart > UNASSIGNED_STARTING_SOON_HOURS) return null;
+  const msUntilStart = job.scheduledStart.getTime() - now.getTime();
+  if (msUntilStart > UNASSIGNED_STARTING_SOON_MS) return null;
 
   return {
     rule: 'UNASSIGNED_STARTING_SOON',
     message:
-      hoursUntilStart < 0
+      msUntilStart < 0
         ? 'Job was due to start but still has no installer assigned'
-        : `Job starts within ${UNASSIGNED_STARTING_SOON_HOURS / 24} days and still has no installer assigned`,
+        : `Job starts within ${ms(UNASSIGNED_STARTING_SOON_MS, { long: true })} and still has no installer assigned`,
   };
 }
 
