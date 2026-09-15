@@ -59,7 +59,7 @@ const AppShell = () => {
     <Root>
       <AppBar position="static" enableColorOnDark>
         <StyledToolbar disableGutters>
-          <FlexContainer>
+          <FlexContainer maxWidth={false}>
             <Typography variant="h5" component="h1">
               Scheduler
             </Typography>
@@ -76,11 +76,11 @@ const AppShell = () => {
           </FlexContainer>
         </StyledToolbar>
       </AppBar>
-      <MainContainer component="main">
+      <MainContainer component="main" maxWidth={false}>
         <Outlet />
       </MainContainer>
       <Footer component="footer">
-        <FlexContainer>
+        <FlexContainer maxWidth={false}>
           <Typography variant="body2">Solution by Glenn Seymon</Typography>
           <Typography variant="body2">2026</Typography>
         </FlexContainer>

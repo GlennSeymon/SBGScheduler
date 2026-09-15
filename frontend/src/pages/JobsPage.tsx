@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { DataGrid, type GridColDef } from '@mui/x-data-grid';
+import { DataGrid, type GridColDef, type GridRenderCellParams } from '@mui/x-data-grid';
 import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -7,8 +7,10 @@ import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Select, { type SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
+import Button from '@mui/material/Button';
 import type { Job } from '@sbg/shared';
 import { useJobs } from '../api/useJobs';
+import AssignDialog from '../components/AssignDialog';
 
 const FilterBar = styled(Box)(({ theme }) => ({
   marginBottom: theme.spacing(2),
@@ -42,7 +44,8 @@ const SORTED_STATUSES = (Object.keys(STATUS_LABELS) as Job['status'][]).sort((a,
   STATUS_LABELS[a].localeCompare(STATUS_LABELS[b]),
 );
 
-const columns: GridColDef<Job>[] = [
+const baseColumns: GridColDef<Job>[] = [
+  { field: 'id', headerName: 'Job ID', width: 100 },
   { field: 'customerName', headerName: 'Customer', flex: 1, minWidth: 160 },
   {
     field: 'siteAddress',
@@ -86,11 +89,32 @@ const columns: GridColDef<Job>[] = [
 const JobsPage = () => {
   const { data, isLoading, isError } = useJobs();
   const [statusFilter, setStatusFilter] = useState<StatusFilterValue>('ALL');
+  const [assigningJob, setAssigningJob] = useState<Job | null>(null);
 
   const rows = useMemo(() => {
     if (!data) return [];
     return statusFilter === 'ALL' ? data : data.filter((job) => job.status === statusFilter);
   }, [data, statusFilter]);
+
+  const columns = useMemo<GridColDef<Job>[]>(
+    () => [
+      ...baseColumns,
+      {
+        field: 'actions',
+        headerName: 'Actions',
+        sortable: false,
+        filterable: false,
+        minWidth: 110,
+        renderCell: (params: GridRenderCellParams<Job>) =>
+          params.row.status === 'UNSCHEDULED' ? (
+            <Button size="small" onClick={() => setAssigningJob(params.row)}>
+              Assign
+            </Button>
+          ) : null,
+      },
+    ],
+    [],
+  );
 
   const handleStatusFilterChange = (event: SelectChangeEvent<StatusFilterValue>) => {
     setStatusFilter(event.target.value as StatusFilterValue);
@@ -129,6 +153,9 @@ const JobsPage = () => {
           initialState={{ pagination: { paginationModel: { pageSize: 25 } } }}
         />
       </GridWrapper>
+      {assigningJob && (
+        <AssignDialog job={assigningJob} open={!!assigningJob} onClose={() => setAssigningJob(null)} />
+      )}
     </>
   );
 };
