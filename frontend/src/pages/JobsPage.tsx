@@ -8,13 +8,12 @@ import InputLabel from '@mui/material/InputLabel';
 import Select, { type SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import type { Job, JobWithRisk } from '@sbg/shared';
 import { useJobs } from '../api/useJobs';
 import AssignDialog from '../components/AssignDialog';
+import AtRiskBadge from '../components/AtRiskBadge';
 import RescheduleDialog from '../components/RescheduleDialog';
 
 const FilterBar = styled(Box)(({ theme }) => ({
@@ -62,22 +61,9 @@ const baseColumns: GridColDef<JobWithRisk>[] = [
     headerAlign: 'center',
     sortable: false,
     filterable: false,
-    renderCell: (params: GridRenderCellParams<JobWithRisk>) => {
-      if (!params.row.isAtRisk) return null;
-      return (
-        <Tooltip
-          title={
-            <>
-              {params.row.atRiskReasons.map((reason) => (
-                <div key={reason.rule}>{reason.message}</div>
-              ))}
-            </>
-          }
-        >
-          <WarningAmberIcon color="warning" fontSize="small" />
-        </Tooltip>
-      );
-    },
+    renderCell: (params: GridRenderCellParams<JobWithRisk>) => (
+      <AtRiskBadge isAtRisk={params.row.isAtRisk} atRiskReasons={params.row.atRiskReasons} />
+    ),
   },
   { field: 'customerName', headerName: 'Customer', flex: 1, minWidth: 160 },
   {
