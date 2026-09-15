@@ -57,7 +57,7 @@ const AppShell = () => {
 
   return (
     <Root>
-      <AppBar position="static">
+      <AppBar position="static" enableColorOnDark>
         <StyledToolbar disableGutters>
           <FlexContainer>
             <Typography variant="h5" component="h1">
