@@ -4,11 +4,13 @@ import {
   checkWithinShift,
   checkNotOnLeave,
   checkDoubleBooking,
+  checkNotPublicHoliday,
   evaluateSchedulingRules,
   type RuleEngineInstaller,
   type RuleEngineJob,
   type RuleEngineJobInterval,
 } from './rule-engine.js';
+import type { PublicHoliday } from './public-holidays.js';
 
 function makeInstaller(overrides: Partial<RuleEngineInstaller> = {}): RuleEngineInstaller {
   return {
@@ -30,6 +32,15 @@ function makeJob(overrides: Partial<RuleEngineJob> = {}): RuleEngineJob {
     // Mon 2026-09-21 09:00 AEST (UTC+10, before DST starts)
     scheduledStart: new Date('2026-09-21T09:00:00+10:00'),
     durationBlocks: 2,
+    ...overrides,
+  };
+}
+
+function makeHoliday(overrides: Partial<PublicHoliday> = {}): PublicHoliday {
+  return {
+    date: '2026-09-21',
+    name: 'Test Holiday',
+    states: null,
     ...overrides,
   };
 }
@@ -169,9 +180,43 @@ describe('checkDoubleBooking', () => {
   });
 });
 
+describe('checkNotPublicHoliday', () => {
+  it('passes when there is no matching holiday', () => {
+    expect(checkNotPublicHoliday(makeJob(), [makeHoliday({ date: '2026-01-01' })])).toBeNull();
+  });
+
+  it('flags a national holiday regardless of the job state', () => {
+    const holiday = makeHoliday({ date: '2026-09-21', name: 'Made-Up Day', states: null });
+    const violation = checkNotPublicHoliday(makeJob({ state: 'QLD' }), [holiday]);
+    expect(violation).toEqual({
+      rule: 'PUBLIC_HOLIDAY',
+      message: expect.stringContaining('Made-Up Day'),
+      holidayName: 'Made-Up Day',
+    });
+  });
+
+  it('flags a state-specific holiday matching the job state', () => {
+    const holiday = makeHoliday({ date: '2026-09-21', states: ['VIC'] });
+    const violation = checkNotPublicHoliday(makeJob({ state: 'VIC' }), [holiday]);
+    expect(violation?.rule).toBe('PUBLIC_HOLIDAY');
+  });
+
+  it('passes for a state-specific holiday that does not include the job state', () => {
+    const holiday = makeHoliday({ date: '2026-09-21', states: ['VIC'] });
+    expect(checkNotPublicHoliday(makeJob({ state: 'NSW' }), [holiday])).toBeNull();
+  });
+
+  it('resolves the job-local calendar date correctly across a UTC day boundary', () => {
+    // 00:30 AEDT (+11) on 2026-01-01 is still 2025-12-31 in UTC — the check must use the local date.
+    const job = makeJob({ state: 'NSW', scheduledStart: new Date('2026-01-01T00:30:00+11:00') });
+    const holiday = makeHoliday({ date: '2026-01-01', name: "New Year's Day", states: null });
+    expect(checkNotPublicHoliday(job, [holiday])?.rule).toBe('PUBLIC_HOLIDAY');
+  });
+});
+
 describe('evaluateSchedulingRules', () => {
   it('returns no violations for a fully valid assignment', () => {
-    expect(evaluateSchedulingRules(makeInstaller(), makeJob(), [])).toEqual([]);
+    expect(evaluateSchedulingRules(makeInstaller(), makeJob(), [], [])).toEqual([]);
   });
 
   it('returns all applicable violations at once, not just the first', () => {
@@ -183,10 +228,21 @@ describe('evaluateSchedulingRules', () => {
     // Different state from the installer, on a non-working day, and inside the leave window.
     const job = makeJob({ state: 'VIC', scheduledStart: new Date('2026-09-19T09:00:00+10:00') });
 
-    const violations = evaluateSchedulingRules(installer, job, []);
+    const violations = evaluateSchedulingRules(installer, job, [], []);
     const rules = violations.map((v) => v.rule);
     expect(rules).toContain('STATE_MISMATCH');
     expect(rules).toContain('OUTSIDE_SHIFT');
     expect(rules).toContain('ON_LEAVE');
+  });
+
+  it('includes a public holiday violation alongside other simultaneous violations', () => {
+    const installer = makeInstaller({ state: 'VIC' });
+    const job = makeJob({ state: 'VIC', scheduledStart: new Date('2026-09-19T09:00:00+10:00') });
+    const holiday = makeHoliday({ date: '2026-09-19', states: null });
+
+    const violations = evaluateSchedulingRules(installer, job, [], [holiday]);
+    const rules = violations.map((v) => v.rule);
+    expect(rules).toContain('OUTSIDE_SHIFT');
+    expect(rules).toContain('PUBLIC_HOLIDAY');
   });
 });

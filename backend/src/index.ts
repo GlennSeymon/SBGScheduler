@@ -4,6 +4,7 @@ import { Pool } from 'pg';
 import type { HealthResponse } from '@sbg/shared';
 import { installersRouter } from './routes/installers.js';
 import { jobsRouter } from './routes/jobs.js';
+import { publicHolidaysRouter } from './routes/public-holidays.js';
 import { notFoundHandler, errorHandler } from './middleware/error-handler.js';
 
 if (process.env.SENTRY_DSN) {
@@ -18,6 +19,7 @@ app.use(express.json());
 
 app.use('/api/installers', installersRouter);
 app.use('/api/jobs', jobsRouter);
+app.use('/api/public-holidays', publicHolidaysRouter);
 
 app.get('/api/health', async (_req, res) => {
   try {

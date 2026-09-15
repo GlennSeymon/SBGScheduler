@@ -3,6 +3,7 @@ import express from 'express';
 import { Pool } from 'pg';
 import { installersRouter } from './routes/installers.js';
 import { jobsRouter } from './routes/jobs.js';
+import { publicHolidaysRouter } from './routes/public-holidays.js';
 import { notFoundHandler, errorHandler } from './middleware/error-handler.js';
 if (process.env.SENTRY_DSN) {
     Sentry.init({ dsn: process.env.SENTRY_DSN, environment: process.env.VERCEL_ENV ?? 'development' });
@@ -13,6 +14,7 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 app.use(express.json());
 app.use('/api/installers', installersRouter);
 app.use('/api/jobs', jobsRouter);
+app.use('/api/public-holidays', publicHolidaysRouter);
 app.get('/api/health', async (_req, res) => {
     try {
         await pool.query('SELECT 1');

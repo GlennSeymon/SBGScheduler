@@ -11,9 +11,10 @@ interview take-home. See [clientBrief.md](./clientBrief.md) for the original cli
 > assign-form-validation/at-risk-badge, all runnable via `npm run test`), and MVP deploy/verification to
 > Vercel. Phase 10 (dashboard polish) is also done — summary cards plus jobs-by-status and
 > installer-utilization charts. Phase 11 (UX polish) is done — Snackbar feedback, skeleton loaders, and
-> RHF validation/messaging polish are all in. Phase 12 (observability) is in progress — Sentry error
-> tracking is wired up for both frontend and backend — see the commit history for current progress.
-> Features and API below describe the target scope, not all of which is built yet.
+> RHF validation/messaging polish are all in. Phase 12 (observability) is done — Sentry error tracking is
+> wired up for both frontend and backend. Phase 14 (stretch: second integration) is in progress — public
+> holiday scheduling restriction, backend done, frontend in progress — see the commit history for current
+> progress. Features and API below describe the target scope, not all of which is built yet.
 
 ## Features
 
@@ -21,7 +22,8 @@ interview take-home. See [clientBrief.md](./clientBrief.md) for the original cli
 - **Assign / reschedule workflow** — dialogs (React Hook Form + shared Zod validation) to assign an
   unscheduled job to an installer and time, or reassign/reschedule an already-scheduled job
 - **Scheduling rule engine** — rejects invalid assignments: double-booking, installer/job state mismatch,
-  outside the installer's shift hours or working days (timezone-aware), or during installer leave
+  outside the installer's shift hours or working days (timezone-aware), during installer leave, or on a
+  national/state public holiday (calendar highlighting in the assign/reschedule dialogs is *in progress*)
 - **At-risk flagging** — flags jobs with a bad weather forecast or unassigned jobs starting soon, with a
   filter and a tooltip explaining why
 - **Live weather + geocoding** — Open-Meteo forecast (BOM ACCESS-G model) and geocoding, no API key
@@ -47,6 +49,7 @@ interview take-home. See [clientBrief.md](./clientBrief.md) for the original cli
 | Shared | Zod schemas + inferred TS types, imported by both frontend and backend so validation is written once |
 | Database | PostgreSQL (Neon), Prisma ORM |
 | Weather & geocoding | [Open-Meteo](https://open-meteo.com/) forecast + geocoding APIs — free, keyless |
+| Public holidays | [Nager.Holidays](https://nagerholidays.com) API — free, keyless |
 | Testing | Vitest (unit test runner), React Testing Library (frontend components), Playwright (e2e) |
 | Error tracking | Sentry |
 | Hosting | Vercel — frontend static build + backend as serverless functions under `/api` |
@@ -56,7 +59,8 @@ interview take-home. See [clientBrief.md](./clientBrief.md) for the original cli
 
 - Node.js 24+ and npm
 - A [Neon](https://neon.tech) Postgres project (or any Postgres connection string)
-- No API keys needed — Open-Meteo's weather and geocoding APIs are free and keyless
+- No API keys needed — Open-Meteo's weather/geocoding and Nager's public holidays APIs are all free and
+  keyless
 
 ## Getting Started
 
@@ -119,9 +123,10 @@ SBGScheduler/
 │   │   └── seed.ts        # Seeds Neon from candidatepack_SBG/candidate/*.csv
 │   └── src/
 │       ├── index.ts    # Express entry point
-│       ├── lib/         # Prisma client, rule engine, Open-Meteo geocoding/weather, at-risk calc
+│       ├── lib/         # Prisma client, rule engine, Open-Meteo geocoding/weather, at-risk calc,
+│       │                # Nager public holidays
 │       ├── middleware/  # Centralized error handling
-│       └── routes/      # installers, jobs (list, assign, reschedule)
+│       └── routes/      # installers, jobs (list, assign, reschedule), public-holidays
 ├── frontend/
 │   └── src/           # Vite + React app
 ├── candidatepack_SBG/ # Sample jobs.csv / installers.csv + data dictionary for seeding
@@ -139,7 +144,7 @@ Unscheduled job
         │
         ▼
   Rule engine checks: no double-booking, shift hours/working days,
-  installer leave, installer/job state match
+  installer leave, installer/job state match, not a public holiday
         │
         ├─── Violates a rule → rejected, reason shown inline
         │
@@ -163,8 +168,9 @@ configuration is required in development.
 | `GET` | `/api/health` | Health check — confirms the API and Neon DB are reachable | Live |
 | `GET` | `/api/installers` | List installers | Live |
 | `GET` | `/api/jobs` | List jobs (all fields, including the at-risk flag/reasons) | Live |
-| `PATCH` | `/api/jobs/:id/assign` | Assign an unscheduled job to an installer + start time, enforcing scheduling rules | Live |
-| `PATCH` | `/api/jobs/:id/reschedule` | Change time and/or installer on a scheduled job, enforcing scheduling rules | Live |
+| `PATCH` | `/api/jobs/:id/assign` | Assign an unscheduled job to an installer + start time, enforcing scheduling rules (incl. public holidays) | Live |
+| `PATCH` | `/api/jobs/:id/reschedule` | Change time and/or installer on a scheduled job, enforcing scheduling rules (incl. public holidays) | Live |
+| `GET` | `/api/public-holidays` | List national + state public holidays for the current and next calendar year | Live |
 
 ## Deployed link
 

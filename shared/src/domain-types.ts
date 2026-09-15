@@ -53,3 +53,11 @@ export interface JobWithRisk extends Job {
   isAtRisk: boolean;
   atRiskReasons: AtRiskReason[];
 }
+
+// Wire shape for GET /api/public-holidays (see Phase 14). `states: null` means the holiday applies
+// nationally; otherwise it's specific to the listed states.
+export interface PublicHoliday {
+  date: string;
+  name: string;
+  states: AustralianState[] | null;
+}

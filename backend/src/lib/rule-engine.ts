@@ -1,5 +1,6 @@
 import { formatInTimeZone } from 'date-fns-tz';
 import { AustralianState } from '../generated/enums.js';
+import type { PublicHoliday } from './public-holidays.js';
 
 // See tech-stack.md → Timezone handling for why each state keeps its own zone (not all NSW's).
 export const STATE_TIME_ZONES: Record<AustralianState, string> = {
@@ -40,7 +41,8 @@ export type RuleViolation =
   | { rule: 'STATE_MISMATCH'; message: string }
   | { rule: 'OUTSIDE_SHIFT'; message: string }
   | { rule: 'ON_LEAVE'; message: string }
-  | { rule: 'DOUBLE_BOOKING'; message: string; conflictingJobId: string };
+  | { rule: 'DOUBLE_BOOKING'; message: string; conflictingJobId: string }
+  | { rule: 'PUBLIC_HOLIDAY'; message: string; holidayName: string };
 
 function jobIntervalMs(job: RuleEngineJobInterval): { start: number; end: number } {
   const start = job.scheduledStart.getTime();
@@ -128,15 +130,40 @@ export function checkDoubleBooking(
   };
 }
 
+// Checked against the job's own state/timezone — not the installer's — since that's the state the
+// holiday actually applies to (checkStateMatch already guarantees the two are equal by the time an
+// installer is eligible to be assigned).
+export function checkNotPublicHoliday(
+  job: RuleEngineJob,
+  holidays: PublicHoliday[],
+): RuleViolation | null {
+  const timeZone = STATE_TIME_ZONES[job.state];
+  const jobLocalDate = formatInTimeZone(job.scheduledStart, timeZone, 'yyyy-MM-dd');
+
+  const match = holidays.find(
+    (holiday) =>
+      holiday.date === jobLocalDate && (holiday.states === null || holiday.states.includes(job.state)),
+  );
+  if (!match) return null;
+
+  return {
+    rule: 'PUBLIC_HOLIDAY',
+    message: `${match.name} is a public holiday in ${job.state} on ${jobLocalDate} — jobs can't be scheduled that day`,
+    holidayName: match.name,
+  };
+}
+
 export function evaluateSchedulingRules(
   installer: RuleEngineInstaller,
   job: RuleEngineJob,
   otherInstallerJobs: RuleEngineJobInterval[],
+  holidays: PublicHoliday[],
 ): RuleViolation[] {
   return [
     checkStateMatch(installer, job),
     checkWithinShift(installer, job),
     checkNotOnLeave(installer, job),
     checkDoubleBooking(job, otherInstallerJobs),
+    checkNotPublicHoliday(job, holidays),
   ].filter((violation): violation is RuleViolation => violation !== null);
 }

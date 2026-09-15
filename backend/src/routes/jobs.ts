@@ -7,6 +7,7 @@ import { JobStatus, AustralianState } from '../generated/enums.js';
 import { geocodeSuburb } from '../lib/geocoding.js';
 import { getForecast, type DailyForecast } from '../lib/weather.js';
 import { evaluateAtRisk } from '../lib/at-risk.js';
+import { getPublicHolidays, type PublicHoliday } from '../lib/public-holidays.js';
 
 const ACTIVE_STATUSES = [JobStatus.SCHEDULED, JobStatus.CONFIRMED];
 
@@ -30,6 +31,17 @@ async function forecastForSuburb(
     console.error(`At-risk: weather lookup failed for ${suburb}, ${state}: ${message}`);
     return null;
   }
+}
+
+// Unlike forecastForSuburb, a failure here is NOT swallowed — checkNotPublicHoliday is a hard "disallow"
+// rule (not an informational one like weather/at-risk), so callers should fail the request rather than
+// silently let a holiday booking through during an outage.
+async function holidaysForCandidate(
+  candidateStart: Date,
+  state: AustralianState,
+): Promise<PublicHoliday[]> {
+  const year = Number(formatInTimeZone(candidateStart, STATE_TIME_ZONES[state], 'yyyy'));
+  return getPublicHolidays(year);
 }
 
 jobsRouter.get('/', async (_req, res) => {
@@ -100,10 +112,21 @@ jobsRouter.patch('/:id/assign', async (req, res) => {
     where: { assignedInstallerId: installerId, status: { in: ACTIVE_STATUSES } },
   });
 
+  let holidays: PublicHoliday[];
+  try {
+    holidays = await holidaysForCandidate(candidateStart, job.state);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`Assign: public holiday lookup failed for job ${job.id}: ${message}`);
+    res.status(503).json({ error: 'Unable to verify public holidays right now — try again shortly' });
+    return;
+  }
+
   const violations = evaluateSchedulingRules(
     installer,
     { id: job.id, state: job.state, scheduledStart: candidateStart, durationBlocks: job.durationBlocks },
     otherJobs.map((j) => ({ id: j.id, scheduledStart: j.scheduledStart!, durationBlocks: j.durationBlocks })),
+    holidays,
   );
   if (violations.length > 0) {
     res.status(409).json({ error: 'Scheduling rule violation', violations });
@@ -171,10 +194,21 @@ jobsRouter.patch('/:id/reschedule', async (req, res) => {
     },
   });
 
+  let holidays: PublicHoliday[];
+  try {
+    holidays = await holidaysForCandidate(effectiveScheduledStart, job.state);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`Reschedule: public holiday lookup failed for job ${job.id}: ${message}`);
+    res.status(503).json({ error: 'Unable to verify public holidays right now — try again shortly' });
+    return;
+  }
+
   const violations = evaluateSchedulingRules(
     installer,
     { id: job.id, state: job.state, scheduledStart: effectiveScheduledStart, durationBlocks: job.durationBlocks },
     otherJobs.map((j) => ({ id: j.id, scheduledStart: j.scheduledStart!, durationBlocks: j.durationBlocks })),
+    holidays,
   );
   if (violations.length > 0) {
     res.status(409).json({ error: 'Scheduling rule violation', violations });
