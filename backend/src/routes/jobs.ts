@@ -1,7 +1,10 @@
 import { Router } from 'express';
 import { assignJobSchema, rescheduleJobSchema } from '@sbg/shared';
 import { prisma } from '../lib/prisma.js';
+import { evaluateSchedulingRules } from '../lib/rule-engine.js';
 import { JobStatus } from '../generated/enums.js';
+
+const ACTIVE_STATUSES = [JobStatus.SCHEDULED, JobStatus.CONFIRMED];
 
 export const jobsRouter = Router();
 
@@ -44,12 +47,26 @@ jobsRouter.patch('/:id/assign', async (req, res) => {
     return;
   }
 
-  // Rule engine validation (double-booking, shift hours, leave, state match) lands in 3.6/3.7.
+  const candidateStart = new Date(scheduledStart);
+  const otherJobs = await prisma.job.findMany({
+    where: { assignedInstallerId: installerId, status: { in: ACTIVE_STATUSES } },
+  });
+
+  const violations = evaluateSchedulingRules(
+    installer,
+    { id: job.id, state: job.state, scheduledStart: candidateStart, durationBlocks: job.durationBlocks },
+    otherJobs.map((j) => ({ id: j.id, scheduledStart: j.scheduledStart!, durationBlocks: j.durationBlocks })),
+  );
+  if (violations.length > 0) {
+    res.status(409).json({ error: 'Scheduling rule violation', violations });
+    return;
+  }
+
   const updated = await prisma.job.update({
     where: { id: job.id },
     data: {
       assignedInstallerId: installerId,
-      scheduledStart: new Date(scheduledStart),
+      scheduledStart: candidateStart,
       status: JobStatus.SCHEDULED,
     },
     include: { assignedInstaller: true },
@@ -88,22 +105,39 @@ jobsRouter.patch('/:id/reschedule', async (req, res) => {
     return;
   }
 
-  if (installerId) {
-    const installer = await prisma.installer.findUnique({
-      where: { id: installerId },
-    });
-    if (!installer) {
-      res.status(404).json({ error: `Installer ${installerId} not found` });
-      return;
-    }
+  const effectiveInstallerId = installerId ?? job.assignedInstallerId!;
+  const installer = await prisma.installer.findUnique({
+    where: { id: effectiveInstallerId },
+  });
+  if (!installer) {
+    res.status(404).json({ error: `Installer ${effectiveInstallerId} not found` });
+    return;
   }
 
-  // Rule engine validation (double-booking, shift hours, leave, state match) lands in 3.6/3.7.
+  const effectiveScheduledStart = scheduledStart ? new Date(scheduledStart) : job.scheduledStart!;
+  const otherJobs = await prisma.job.findMany({
+    where: {
+      assignedInstallerId: effectiveInstallerId,
+      status: { in: ACTIVE_STATUSES },
+      id: { not: job.id },
+    },
+  });
+
+  const violations = evaluateSchedulingRules(
+    installer,
+    { id: job.id, state: job.state, scheduledStart: effectiveScheduledStart, durationBlocks: job.durationBlocks },
+    otherJobs.map((j) => ({ id: j.id, scheduledStart: j.scheduledStart!, durationBlocks: j.durationBlocks })),
+  );
+  if (violations.length > 0) {
+    res.status(409).json({ error: 'Scheduling rule violation', violations });
+    return;
+  }
+
   const updated = await prisma.job.update({
     where: { id: job.id },
     data: {
       ...(installerId && { assignedInstallerId: installerId }),
-      ...(scheduledStart && { scheduledStart: new Date(scheduledStart) }),
+      ...(scheduledStart && { scheduledStart: effectiveScheduledStart }),
       // A changed time/installer un-confirms a CONFIRMED job — it needs re-confirming.
       status: job.status === JobStatus.CONFIRMED ? JobStatus.SCHEDULED : job.status,
     },
