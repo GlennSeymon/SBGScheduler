@@ -10,6 +10,7 @@ import Container from '@mui/material/Container';
 import IconButton from '@mui/material/IconButton';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
+import { AiOutlineSchedule } from 'react-icons/ai';
 import sbgLogo from '../assets/sbg-logo.png';
 import { useColorMode } from '../theme/ColorModeContext';
 
@@ -41,6 +42,16 @@ const HeaderActions = styled(Box)(({ theme }) => ({
   gap: theme.spacing(1.5),
 }));
 
+const TitleGroup = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  gap: theme.spacing(1),
+}));
+
+const ScheduleIcon = styled(AiOutlineSchedule)({
+  fontSize: '1.5rem',
+});
+
 const NavTabs = styled(Tabs)(({ theme }) => ({
   minHeight: theme.spacing(5),
 }));
@@ -67,9 +78,12 @@ const AppShell = () => {
       <AppBar position="static" enableColorOnDark>
         <StyledToolbar disableGutters>
           <FlexContainer maxWidth={false}>
-            <Typography variant="h5" component="h1">
-              Scheduler
-            </Typography>
+            <TitleGroup>
+              <ScheduleIcon aria-hidden="true" />
+              <Typography variant="h5" component="h1">
+                Scheduler
+              </Typography>
+            </TitleGroup>
             <HeaderActions>
               <IconButton
                 onClick={toggleMode}
