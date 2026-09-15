@@ -7,10 +7,10 @@ interview take-home. See [clientBrief.md](./clientBrief.md) for the original cli
 > **Status:** in active development ahead of an interview deadline (2026-09-16). Everything through Phase 7
 > is done — deployment skeleton, repo tooling, data layer, backend API/scheduling rule engine, core
 > frontend scheduling UI (jobs grid, assign/reschedule), weather/geocoding/at-risk calculation, and the
-> at-risk badge/tooltip + filter in the jobs grid; Phase 8 (unit tests) is underway — backend rule engine
-> and at-risk calculation tests, the assign form's validation, and the at-risk badge are all covered;
-> wiring the root `test` script is next — see the commit history for current progress. Features and API
-> below describe the target scope, not all of which is built yet.
+> at-risk badge/tooltip + filter in the jobs grid; Phase 8 (unit tests) is also done — backend rule
+> engine/at-risk tests, frontend assign-form-validation/at-risk-badge tests, and a root `npm run test`
+> script. Phase 9 (MVP deploy & verification) is next — see the commit history for current progress.
+> Features and API below describe the target scope, not all of which is built yet.
 
 ## Features
 
@@ -28,8 +28,8 @@ interview take-home. See [clientBrief.md](./clientBrief.md) for the original cli
 - **Snackbar notifications** — success/error feedback for assign and reschedule actions
 - **Skeleton loaders** *(polish)* — loading states across the UI
 - **Unit tests** — Vitest coverage for the rule engine and at-risk calculation, plus the assign form's
-  validation and the at-risk badge (React Testing Library) — all done; Playwright e2e tests as time
-  allows *(polish)*
+  validation and the at-risk badge (React Testing Library), all runnable via `npm run test`; Playwright
+  e2e tests as time allows *(polish)*
 - **Error tracking** *(polish)* — Sentry for frontend and backend
 
 ## Tech Stack
@@ -94,11 +94,12 @@ npm run dev   # shared (watch build), backend, and frontend concurrently
 Frontend: http://localhost:5173 (proxies `/api/*` to the backend)
 Backend: http://localhost:3001
 
-**5. Build / lint**
+**5. Build / lint / test**
 
 ```bash
 npm run build # build shared, then backend, then frontend, in that order
 npm run lint  # lint all three workspaces
+npm run test  # run backend + frontend unit tests (Vitest)
 ```
 
 ## Project Structure

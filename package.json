@@ -11,6 +11,7 @@
     "dev": "concurrently -n shared,backend,frontend -c yellow,green,blue \"npm run dev --workspace=shared\" \"npm run dev --workspace=backend\" \"npm run dev --workspace=frontend\"",
     "build": "npm run build --workspace=shared && npm run build --workspace=backend && npm run build --workspace=frontend",
     "lint": "npm run lint --workspaces",
+    "test": "npm run test --workspaces --if-present",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "deploy": "vercel deploy --prod --scope glennseymons-projects",
