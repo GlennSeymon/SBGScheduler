@@ -24,24 +24,24 @@ interview take-home. See [clientBrief.md](./clientBrief.md) for the original cli
   dashboard (summary cards + charts)
 - **Unit tests** — Vitest coverage for the rule engine and at-risk calculation, plus the assign form's
   validation and the at-risk badge (React Testing Library), all runnable via `npm run test`; Playwright
-  e2e tests as time allows *(polish)*
+  e2e tests as time allows _(polish)_
 - **Error tracking** — Sentry for frontend (React error boundary) and backend (centralized error
   middleware), one shared project for both
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Frontend | React (Vite) + TypeScript, Material UI + MUI X DataGrid/Charts, Tanstack Query, React Hook Form, Axios |
-| Backend | Node.js + Express + TypeScript |
-| Shared | Zod schemas + inferred TS types, imported by both frontend and backend so validation is written once |
-| Database | PostgreSQL (Neon), Prisma ORM |
-| Weather & geocoding | [Open-Meteo](https://open-meteo.com/) forecast + geocoding APIs — free, keyless |
-| Public holidays | [Nager.Holidays](https://nagerholidays.com) API — free, keyless |
-| Testing | Vitest (unit test runner), React Testing Library (frontend components), Playwright (e2e) |
-| Error tracking | Sentry |
-| Hosting | Vercel — frontend static build + backend as serverless functions under `/api` |
-| Tooling | npm workspaces, ESLint (flat config, typescript-eslint), Prettier |
+| Layer               | Technology                                                                                             |
+| ------------------- | ------------------------------------------------------------------------------------------------------ |
+| Frontend            | React (Vite) + TypeScript, Material UI + MUI X DataGrid/Charts, Tanstack Query, React Hook Form, Axios |
+| Backend             | Node.js + Express + TypeScript                                                                         |
+| Shared              | Zod schemas + inferred TS types, imported by both frontend and backend so validation is written once   |
+| Database            | PostgreSQL (Neon), Prisma ORM                                                                          |
+| Weather & geocoding | [Open-Meteo](https://open-meteo.com/) forecast + geocoding APIs — free, keyless                        |
+| Public holidays     | [Nager.Holidays](https://nagerholidays.com) API — free, keyless                                        |
+| Testing             | Vitest (unit test runner), React Testing Library (frontend components), Playwright (e2e)               |
+| Error tracking      | Sentry                                                                                                 |
+| Hosting             | Vercel — frontend static build + backend as serverless functions under `/api`                          |
+| Tooling             | npm workspaces, ESLint (flat config, typescript-eslint), Prettier                                      |
 
 ## Prerequisites
 
@@ -152,13 +152,13 @@ Unscheduled job
 violation blocks the booking and returns a reason shown inline in the assign/reschedule dialog. All checks
 run (not short-circuited), so a booking can fail for more than one reason at once.
 
-| Rule | Blocks a booking when… |
-|---|---|
-| `STATE_MISMATCH` | The installer's `state` doesn't match the job's `state` — installers don't cross state lines |
-| `OUTSIDE_SHIFT` | The job's start day (in the installer's state timezone) isn't one of the installer's `workingDays`, or the job's start/end time falls outside `shiftStart`–`shiftEnd`, or the job would run past shift end into the next day |
-| `ON_LEAVE` | The job's local calendar date falls within the installer's `leaveStart`–`leaveEnd` (inclusive) |
-| `DOUBLE_BOOKING` | The job's time interval overlaps another job already assigned to the same installer |
-| `PUBLIC_HOLIDAY` | The job's local calendar date is a national public holiday, or a state public holiday for the job's own state (per [Nager.Holidays](https://nagerholidays.com)) |
+| Rule             | Blocks a booking when…                                                                                                                                                                                                       |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `STATE_MISMATCH` | The installer's `state` doesn't match the job's `state` — installers don't cross state lines                                                                                                                                 |
+| `OUTSIDE_SHIFT`  | The job's start day (in the installer's state timezone) isn't one of the installer's `workingDays`, or the job's start/end time falls outside `shiftStart`–`shiftEnd`, or the job would run past shift end into the next day |
+| `ON_LEAVE`       | The job's local calendar date falls within the installer's `leaveStart`–`leaveEnd` (inclusive)                                                                                                                               |
+| `DOUBLE_BOOKING` | The job's time interval overlaps another job already assigned to the same installer                                                                                                                                          |
+| `PUBLIC_HOLIDAY` | The job's local calendar date is a national public holiday, or a state public holiday for the job's own state (per [Nager.Holidays](https://nagerholidays.com))                                                              |
 
 Each state keeps its own IANA timezone (`STATE_TIME_ZONES`) for these comparisons — e.g. `QLD` doesn't
 observe daylight saving, so a shift/holiday boundary at the same wall-clock time can differ from `NSW`.
@@ -169,14 +169,14 @@ See `tech-stack.md` → Timezone handling for the full rationale.
 All endpoints are prefixed `/api/`. The Vite dev server proxies `/api/*` to the backend, so no CORS
 configuration is required in development.
 
-| Method | Path | Description | Status |
-|---|---|---|---|
-| `GET` | `/api/health` | Health check — confirms the API and Neon DB are reachable | Live |
-| `GET` | `/api/installers` | List installers | Live |
-| `GET` | `/api/jobs` | List jobs (all fields, including the at-risk flag/reasons) | Live |
-| `PATCH` | `/api/jobs/:id/assign` | Assign an unscheduled job to an installer + start time, enforcing scheduling rules (incl. public holidays) | Live |
-| `PATCH` | `/api/jobs/:id/reschedule` | Change time and/or installer on a scheduled job, enforcing scheduling rules (incl. public holidays) | Live |
-| `GET` | `/api/public-holidays` | List national + state public holidays for the current and next calendar year | Live |
+| Method  | Path                       | Description                                                                                                | Status |
+| ------- | -------------------------- | ---------------------------------------------------------------------------------------------------------- | ------ |
+| `GET`   | `/api/health`              | Health check — confirms the API and Neon DB are reachable                                                  | Live   |
+| `GET`   | `/api/installers`          | List installers                                                                                            | Live   |
+| `GET`   | `/api/jobs`                | List jobs (all fields, including the at-risk flag/reasons)                                                 | Live   |
+| `PATCH` | `/api/jobs/:id/assign`     | Assign an unscheduled job to an installer + start time, enforcing scheduling rules (incl. public holidays) | Live   |
+| `PATCH` | `/api/jobs/:id/reschedule` | Change time and/or installer on a scheduled job, enforcing scheduling rules (incl. public holidays)        | Live   |
+| `GET`   | `/api/public-holidays`     | List national + state public holidays for the current and next calendar year                               | Live   |
 
 ## Integrations
 
@@ -211,6 +211,47 @@ holidays (filtered to `holidayTypes: Public`) for a given year, normalising Nage
 codes (e.g. `AU-VIC`) down to our state enum — a holiday with no subdivisions is treated as national
 (applies to every state), distinct from one whose subdivisions are all unrecognised. Cached for 1 day per
 year, since a year's holiday calendar is effectively immutable once published.
+
+## Screenshots
+
+### Jobs grid
+
+Sortable, paginated table of all jobs with a status filter and an at-risk toggle.
+
+![Jobs grid](screenshots/1jobList.png)
+
+### Reschedule dialog
+
+Reassigning the installer and/or start time on an already-scheduled job.
+
+![Reschedule dialog](screenshots/2jobReschedule.png)
+
+### Assign dialog with datetime picker filtered with public holidays
+
+Assigning an unscheduled job to an installer and start time — the calendar highlights and blocks
+national and state public holidays.
+
+![Assign dialog with public holiday highlighted in the calendar](screenshots/3DatePublicHolidayFilter.png)
+
+### Dashboard
+
+Summary cards (counts by status, at-risk, unassigned) alongside jobs-by-status and installer
+utilisation charts.
+
+![Dashboard](screenshots/4Dashboard.png)
+
+### Reschedule dialog — double-booking rejected
+
+The rule engine blocks a reschedule that would double-book the installer, with the reason shown inline
+in the dialog and as a snackbar.
+
+![Reschedule dialog rejecting a double-booked installer](screenshots/5jobRescheduleClash.png)
+
+### Reschedule dialog — outside working days rejected
+
+The rule engine blocks a reschedule that falls on a day the installer doesn't work.
+
+![Reschedule dialog rejecting a day outside the installer's working days](screenshots/6jobRescheduleOutsideWorkingHours.png)
 
 ## Deployed link
 
