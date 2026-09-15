@@ -4,8 +4,11 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import { styled } from '@mui/material/styles';
+import { PieChart } from '@mui/x-charts/PieChart';
+import { BarChart } from '@mui/x-charts/BarChart';
 import type { Job } from '@sbg/shared';
 import { useJobs } from '../api/useJobs';
+import { useInstallers } from '../api/useInstallers';
 
 type Tone = 'warning' | 'error';
 
@@ -21,6 +24,10 @@ const CardValue = styled(Typography)({
   lineHeight: 1.1,
 });
 
+const ChartCard = styled(Card)({
+  height: '100%',
+});
+
 const STATUS_LABELS: Record<Job['status'], string> = {
   UNSCHEDULED: 'Unscheduled',
   SCHEDULED: 'Scheduled',
@@ -30,6 +37,8 @@ const STATUS_LABELS: Record<Job['status'], string> = {
 
 const STATUS_ORDER: Job['status'][] = ['UNSCHEDULED', 'SCHEDULED', 'CONFIRMED', 'CANCELLED'];
 
+const ACTIVE_STATUSES: Job['status'][] = ['SCHEDULED', 'CONFIRMED'];
+
 interface SummaryCardData {
   label: string;
   value: number;
@@ -37,18 +46,25 @@ interface SummaryCardData {
 }
 
 const DashboardPage = () => {
-  const { data, isLoading, isError } = useJobs();
+  const { data, isLoading: jobsLoading, isError: jobsError } = useJobs();
+  const { data: installers, isLoading: installersLoading, isError: installersError } = useInstallers();
+
+  const statusCounts = useMemo(
+    () =>
+      STATUS_ORDER.map((status) => ({
+        id: status,
+        label: STATUS_LABELS[status],
+        value: (data ?? []).filter((job) => job.status === status).length,
+      })),
+    [data],
+  );
 
   const cards = useMemo<SummaryCardData[]>(() => {
     const jobs = data ?? [];
-    const statusCounts = STATUS_ORDER.map((status) => ({
-      label: STATUS_LABELS[status],
-      value: jobs.filter((job) => job.status === status).length,
-    }));
 
     return [
       { label: 'Total jobs', value: jobs.length },
-      ...statusCounts,
+      ...statusCounts.map(({ label, value }) => ({ label, value })),
       {
         label: 'At risk',
         value: jobs.filter((job) => job.isAtRisk).length,
@@ -60,13 +76,33 @@ const DashboardPage = () => {
         tone: 'error',
       },
     ];
-  }, [data]);
+  }, [data, statusCounts]);
 
-  if (isError) {
+  const statusPieData = useMemo(
+    () => [...statusCounts].sort((a, b) => a.label.localeCompare(b.label)),
+    [statusCounts],
+  );
+
+  const installerUtilization = useMemo(() => {
+    const jobs = data ?? [];
+    return (installers ?? [])
+      .map((installer) => ({
+        name: installer.name,
+        hours: jobs
+          .filter(
+            (job) =>
+              job.assignedInstallerId === installer.id && ACTIVE_STATUSES.includes(job.status),
+          )
+          .reduce((sum, job) => sum + job.durationBlocks, 0),
+      }))
+      .sort((a, b) => b.hours - a.hours);
+  }, [data, installers]);
+
+  if (jobsError || installersError) {
     return <Typography color="error">Failed to load dashboard data.</Typography>;
   }
 
-  if (isLoading) {
+  if (jobsLoading || installersLoading) {
     return <Typography>Loading dashboard…</Typography>;
   }
 
@@ -84,6 +120,37 @@ const DashboardPage = () => {
           </SummaryCard>
         </Grid>
       ))}
+      <Grid size={{ xs: 12, md: 6 }}>
+        <ChartCard>
+          <CardContent>
+            <Typography variant="subtitle1" gutterBottom>
+              Jobs by status
+            </Typography>
+            <PieChart
+              series={[{ data: statusPieData, innerRadius: 40 }]}
+              height={300}
+            />
+          </CardContent>
+        </ChartCard>
+      </Grid>
+      <Grid size={{ xs: 12, md: 6 }}>
+        <ChartCard>
+          <CardContent>
+            <Typography variant="subtitle1" gutterBottom>
+              Installer utilization (scheduled hours)
+            </Typography>
+            <BarChart
+              dataset={installerUtilization}
+              layout="horizontal"
+              yAxis={[{ dataKey: 'name', width: 120 }]}
+              xAxis={[{ label: 'Hours' }]}
+              series={[{ dataKey: 'hours', label: 'Scheduled hours' }]}
+              height={Math.max(300, installerUtilization.length * 36)}
+              hideLegend
+            />
+          </CardContent>
+        </ChartCard>
+      </Grid>
     </Grid>
   );
 };
