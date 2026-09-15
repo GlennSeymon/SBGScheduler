@@ -25,6 +25,10 @@ const ColorModeProvider = ({ children }: ColorModeProviderProps) => {
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, mode);
+    // Tell the browser which scheme is actually active so Android's forced-dark
+    // heuristic (which otherwise re-colours the page based on the OS theme,
+    // ignoring our own light/dark toggle) trusts our colours instead.
+    document.documentElement.style.colorScheme = mode;
   }, [mode]);
 
   const value = useMemo(
