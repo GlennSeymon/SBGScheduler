@@ -31,6 +31,11 @@ app.get('/api/health', async (_req, res) => {
   }
 });
 
+// Temporary diagnostic route for verifying Sentry wiring — remove after confirming in the Sentry dashboard.
+app.get('/api/debug-sentry', () => {
+  throw new Error(`Sentry diagnostic error — SENTRY_DSN set: ${Boolean(process.env.SENTRY_DSN)}`);
+});
+
 app.use(notFoundHandler);
 app.use(errorHandler);
 
