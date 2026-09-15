@@ -8,7 +8,9 @@ import InputLabel from '@mui/material/InputLabel';
 import Select, { type SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import Button from '@mui/material/Button';
-import type { Job } from '@sbg/shared';
+import Tooltip from '@mui/material/Tooltip';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import type { Job, JobWithRisk } from '@sbg/shared';
 import { useJobs } from '../api/useJobs';
 import AssignDialog from '../components/AssignDialog';
 import RescheduleDialog from '../components/RescheduleDialog';
@@ -45,8 +47,33 @@ const SORTED_STATUSES = (Object.keys(STATUS_LABELS) as Job['status'][]).sort((a,
   STATUS_LABELS[a].localeCompare(STATUS_LABELS[b]),
 );
 
-const baseColumns: GridColDef<Job>[] = [
+const baseColumns: GridColDef<JobWithRisk>[] = [
   { field: 'id', headerName: 'Job ID', width: 100 },
+  {
+    field: 'isAtRisk',
+    headerName: 'At risk',
+    width: 90,
+    align: 'center',
+    headerAlign: 'center',
+    sortable: false,
+    filterable: false,
+    renderCell: (params: GridRenderCellParams<JobWithRisk>) => {
+      if (!params.row.isAtRisk) return null;
+      return (
+        <Tooltip
+          title={
+            <>
+              {params.row.atRiskReasons.map((reason) => (
+                <div key={reason.rule}>{reason.message}</div>
+              ))}
+            </>
+          }
+        >
+          <WarningAmberIcon color="warning" fontSize="small" />
+        </Tooltip>
+      );
+    },
+  },
   { field: 'customerName', headerName: 'Customer', flex: 1, minWidth: 160 },
   {
     field: 'siteAddress',
@@ -98,7 +125,7 @@ const JobsPage = () => {
     return statusFilter === 'ALL' ? data : data.filter((job) => job.status === statusFilter);
   }, [data, statusFilter]);
 
-  const columns = useMemo<GridColDef<Job>[]>(
+  const columns = useMemo<GridColDef<JobWithRisk>[]>(
     () => [
       ...baseColumns,
       {
@@ -107,7 +134,7 @@ const JobsPage = () => {
         sortable: false,
         filterable: false,
         minWidth: 130,
-        renderCell: (params: GridRenderCellParams<Job>) => {
+        renderCell: (params: GridRenderCellParams<JobWithRisk>) => {
           if (params.row.status === 'UNSCHEDULED') {
             return (
               <Button size="small" onClick={() => setAssigningJob(params.row)}>

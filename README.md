@@ -6,9 +6,9 @@ interview take-home. See [clientBrief.md](./clientBrief.md) for the original cli
 
 > **Status:** in active development ahead of an interview deadline (2026-09-16). The deployment skeleton,
 > repo tooling, data layer, backend API/scheduling rule engine, core frontend scheduling UI (jobs grid,
-> assign/reschedule), and weather/geocoding/at-risk calculation (backend) are done; the at-risk UI (badge,
-> filter) is next — see the commit history for current progress. Features and API below describe the
-> target scope, not all of which is built yet.
+> assign/reschedule), weather/geocoding/at-risk calculation (backend), and the at-risk badge/tooltip in the
+> jobs grid are done; the at-risk filter toggle is next — see the commit history for current progress.
+> Features and API below describe the target scope, not all of which is built yet.
 
 ## Features
 
