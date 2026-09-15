@@ -18,7 +18,7 @@ interview take-home. See [clientBrief.md](./clientBrief.md) for the original cli
 
 ## Features
 
-- **Jobs data grid** — dense table of all jobs with column sorting, pagination, and a status filter
+- **Jobs data grid** — table of all jobs with column sorting, pagination, and a status filter
 - **Assign / reschedule workflow** — dialogs (React Hook Form + shared Zod validation) to assign an
   unscheduled job to an installer and time, or reassign/reschedule an already-scheduled job
 - **Scheduling rule engine** — rejects invalid assignments: double-booking, installer/job state mismatch,
@@ -171,6 +171,40 @@ configuration is required in development.
 | `PATCH` | `/api/jobs/:id/assign` | Assign an unscheduled job to an installer + start time, enforcing scheduling rules (incl. public holidays) | Live |
 | `PATCH` | `/api/jobs/:id/reschedule` | Change time and/or installer on a scheduled job, enforcing scheduling rules (incl. public holidays) | Live |
 | `GET` | `/api/public-holidays` | List national + state public holidays for the current and next calendar year | Live |
+
+## Integrations
+
+Both integrations below are free, keyless third-party APIs, called from the backend and cached in-memory
+(`backend/src/lib/ttl-cache.ts`) to avoid re-hitting the provider on every `/api/jobs` poll. A failed
+computation is never cached, so a transient outage is simply retried on the next call rather than sticking
+around for the rest of the TTL window.
+
+### Weather & geocoding
+
+Job sites are geocoded and forecast via [Open-Meteo](https://open-meteo.com/), used to power the "at-risk"
+weather flag:
+
+- **Geocoding** (`backend/src/lib/geocoding.ts`) — resolves a job's suburb + state to lat/lon via
+  Open-Meteo's geocoding API, preferring an exact suburb name match and disambiguating suburbs that recur
+  across states (e.g. Richmond in both NSW and VIC) by matching on the expected state. Cached for 1 day per
+  suburb, since a suburb's coordinates don't change.
+- **Forecast** (`backend/src/lib/weather.ts`) — fetches up to 16 days of daily forecast (weather code,
+  precipitation probability/sum, max wind speed) from Open-Meteo's forecast API. Requests the
+  `bom_access_global` model first, for a genuinely BOM/ACCESS-G sourced forecast, and automatically falls
+  back to Open-Meteo's default best-match model if BOM's feed comes back empty — which it currently does,
+  as BOM's open-data delivery is suspended for platform upgrades as of 2026-09-15. Each forecast entry
+  records which model actually supplied it (`source: 'bom_access_global' | 'best_match'`). Cached for 30
+  minutes per coordinate.
+
+### Public holidays
+
+National and state public holidays come from the [Nager.Holidays](https://nagerholidays.com) API
+(`backend/src/lib/public-holidays.ts`), used both to render the holiday calendar and to block scheduling
+a job on a day the assigned installer's state observes as a public holiday. Fetches Australia's public
+holidays (filtered to `holidayTypes: Public`) for a given year, normalising Nager's ISO 3166-2 subdivision
+codes (e.g. `AU-VIC`) down to our state enum — a holiday with no subdivisions is treated as national
+(applies to every state), distinct from one whose subdivisions are all unrecognised. Cached for 1 day per
+year, since a year's holiday calendar is effectively immutable once published.
 
 ## Deployed link
 
