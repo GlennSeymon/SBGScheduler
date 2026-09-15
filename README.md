@@ -158,6 +158,24 @@ Unscheduled job
           OR job is unassigned and starting soon
 ```
 
+## Scheduling Rule Engine
+
+`backend/src/lib/rule-engine.ts` runs five independent checks against a proposed assign/reschedule; any
+violation blocks the booking and returns a reason shown inline in the assign/reschedule dialog. All checks
+run (not short-circuited), so a booking can fail for more than one reason at once.
+
+| Rule | Blocks a booking when… |
+|---|---|
+| `STATE_MISMATCH` | The installer's `state` doesn't match the job's `state` — installers don't cross state lines |
+| `OUTSIDE_SHIFT` | The job's start day (in the installer's state timezone) isn't one of the installer's `workingDays`, or the job's start/end time falls outside `shiftStart`–`shiftEnd`, or the job would run past shift end into the next day |
+| `ON_LEAVE` | The job's local calendar date falls within the installer's `leaveStart`–`leaveEnd` (inclusive) |
+| `DOUBLE_BOOKING` | The job's time interval overlaps another job already assigned to the same installer |
+| `PUBLIC_HOLIDAY` | The job's local calendar date is a national public holiday, or a state public holiday for the job's own state (per [Nager.Holidays](https://nagerholidays.com)) |
+
+Each state keeps its own IANA timezone (`STATE_TIME_ZONES`) for these comparisons — e.g. `QLD` doesn't
+observe daylight saving, so a shift/holiday boundary at the same wall-clock time can differ from `NSW`.
+See `tech-stack.md` → Timezone handling for the full rationale.
+
 ## API
 
 All endpoints are prefixed `/api/`. The Vite dev server proxies `/api/*` to the backend, so no CORS
