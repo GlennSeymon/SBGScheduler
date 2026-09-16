@@ -91,7 +91,7 @@ const DashboardPage = () => {
     [statusCounts],
   );
 
-  const installerUtilization = useMemo(() => {
+  const installerUtilisation = useMemo(() => {
     const jobs = data ?? [];
     return (installers ?? [])
       .map((installer) => ({
@@ -174,15 +174,15 @@ const DashboardPage = () => {
         <ChartCard>
           <CardContent>
             <Typography variant="subtitle1" gutterBottom>
-              Installer utilization (scheduled hours)
+              Installer utilisation (scheduled hours)
             </Typography>
             <BarChart
-              dataset={installerUtilization}
+              dataset={installerUtilisation}
               layout="horizontal"
               yAxis={[{ dataKey: 'name', width: 120 }]}
               xAxis={[{ label: 'Hours' }]}
               series={[{ dataKey: 'hours', label: 'Scheduled hours' }]}
-              height={Math.max(300, installerUtilization.length * 36)}
+              height={Math.max(300, installerUtilisation.length * 36)}
               hideLegend
             />
           </CardContent>

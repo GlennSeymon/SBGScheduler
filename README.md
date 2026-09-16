@@ -17,7 +17,7 @@ interview take-home. See [clientBrief.md](./clientBrief.md) for the original cli
 - **Live weather + geocoding** — Open-Meteo forecast (BOM ACCESS-G model) and geocoding, no API key
   required, cached to avoid hammering the API on every request
 - **Dashboard** — summary cards (counts by status, at-risk, unassigned) and charts (jobs-by-status pie,
-  installer utilization by scheduled hours)
+  installer utilisation by scheduled hours)
 - **SBG branding** — palette derived from the Solar Battery Group logo, light/dark theme toggle
 - **Snackbar notifications** — success/error feedback for assign and reschedule actions
 - **Skeleton loaders** — loading states for the jobs grid (MUI X's default skeleton-row overlay) and the
