@@ -4,8 +4,8 @@ import { assignJobSchema, rescheduleJobSchema } from '@sbg/shared';
 import { prisma } from '../lib/prisma.js';
 import { evaluateSchedulingRules, STATE_TIME_ZONES } from '../lib/rule-engine.js';
 import { JobStatus, AustralianState } from '../generated/enums.js';
-import { geocodeSuburb } from '../lib/geocoding.js';
-import { getForecast, type DailyForecast } from '../lib/weather.js';
+import { geocodeSuburb, type Coordinates } from '../lib/geocoding.js';
+import { getForecasts, coordinateKey, type DailyForecast } from '../lib/weather.js';
 import { evaluateAtRisk } from '../lib/at-risk.js';
 import { getPublicHolidays, type PublicHoliday } from '../lib/public-holidays.js';
 
@@ -13,27 +13,51 @@ const ACTIVE_STATUSES = [JobStatus.SCHEDULED, JobStatus.CONFIRMED];
 
 export const jobsRouter = Router();
 
-// geocodeSuburb/getForecast cache their own results (see ttl-cache.ts) — including deduping concurrent
-// calls for the same key — so no request-level dedup is needed here.
+// geocodeSuburb caches its own results (see ttl-cache.ts) — including deduping concurrent calls for the
+// same key — so no request-level dedup is needed for it. Forecasts are different: rather than one
+// Open-Meteo call per suburb, every distinct suburb's coordinates are gathered up-front and looked up in
+// a single batched call via getForecasts (see weather.ts) — otherwise a job list spanning a few dozen
+// suburbs fires that many concurrent requests at once and trips Open-Meteo's rate limit.
 //
 // Any failure here (geocoding down, weather API down, a network blip) is caught unconditionally, not
 // just our own GeocodingError/WeatherError — /api/jobs is the app's core data endpoint and must keep
 // working even when the weather enrichment can't. A job that hits this just gets no weather reason.
-async function forecastForSuburb(
-  suburb: string,
-  state: AustralianState,
-): Promise<DailyForecast[] | null> {
-  try {
-    const coordinates = await geocodeSuburb(suburb, state);
-    return await getForecast(coordinates);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    console.error(`At-risk: weather lookup failed for ${suburb}, ${state}: ${message}`);
-    return null;
+async function forecastsBySuburb(
+  suburbs: { suburb: string; state: AustralianState }[],
+): Promise<Map<string, DailyForecast[]>> {
+  const coordinatesBySuburbKey = new Map<string, Coordinates>();
+  await Promise.all(
+    suburbs.map(async ({ suburb, state }) => {
+      try {
+        coordinatesBySuburbKey.set(`${suburb}|${state}`, await geocodeSuburb(suburb, state));
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        console.error(`At-risk: geocoding failed for ${suburb}, ${state}: ${message}`);
+      }
+    }),
+  );
+
+  let forecastsByCoordinateKey = new Map<string, DailyForecast[]>();
+  if (coordinatesBySuburbKey.size > 0) {
+    try {
+      forecastsByCoordinateKey = await getForecasts([...coordinatesBySuburbKey.values()]);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(`At-risk: weather lookup failed for ${coordinatesBySuburbKey.size} location(s): ${message}`);
+    }
   }
+
+  const result = new Map<string, DailyForecast[]>();
+  for (const [suburbKey, coordinates] of coordinatesBySuburbKey) {
+    const forecasts = forecastsByCoordinateKey.get(coordinateKey(coordinates));
+    if (forecasts) {
+      result.set(suburbKey, forecasts);
+    }
+  }
+  return result;
 }
 
-// Unlike forecastForSuburb, a failure here is NOT swallowed — checkNotPublicHoliday is a hard "disallow"
+// Unlike forecastsBySuburb, a failure here is NOT swallowed — checkNotPublicHoliday is a hard "disallow"
 // rule (not an informational one like weather/at-risk), so callers should fail the request rather than
 // silently let a holiday booking through during an outage.
 async function holidaysForCandidate(
@@ -52,26 +76,26 @@ jobsRouter.get('/', async (_req, res) => {
 
   const now = new Date();
 
-  const jobsWithRisk = await Promise.all(
-    jobs.map(async (job) => {
-      let forecastForDate: DailyForecast | undefined;
-
-      if (job.scheduledStart) {
-        const forecasts = await forecastForSuburb(job.suburb, job.state);
-        if (forecasts) {
-          const localDate = formatInTimeZone(
-            job.scheduledStart,
-            STATE_TIME_ZONES[job.state],
-            'yyyy-MM-dd',
-          );
-          forecastForDate = forecasts.find((forecast) => forecast.date === localDate);
-        }
-      }
-
-      const { isAtRisk, reasons } = evaluateAtRisk(job, forecastForDate, now);
-      return { ...job, isAtRisk, atRiskReasons: reasons };
-    }),
+  const scheduledJobs = jobs.filter((job) => job.scheduledStart);
+  const uniqueSuburbs = new Map(
+    scheduledJobs.map((job) => [`${job.suburb}|${job.state}`, { suburb: job.suburb, state: job.state }]),
   );
+  const forecastsBySuburbKey = await forecastsBySuburb([...uniqueSuburbs.values()]);
+
+  const jobsWithRisk = jobs.map((job) => {
+    let forecastForDate: DailyForecast | undefined;
+
+    if (job.scheduledStart) {
+      const forecasts = forecastsBySuburbKey.get(`${job.suburb}|${job.state}`);
+      if (forecasts) {
+        const localDate = formatInTimeZone(job.scheduledStart, STATE_TIME_ZONES[job.state], 'yyyy-MM-dd');
+        forecastForDate = forecasts.find((forecast) => forecast.date === localDate);
+      }
+    }
+
+    const { isAtRisk, reasons } = evaluateAtRisk(job, forecastForDate, now);
+    return { ...job, isAtRisk, atRiskReasons: reasons };
+  });
 
   res.json(jobsWithRisk);
 });

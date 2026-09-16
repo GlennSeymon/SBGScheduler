@@ -201,7 +201,9 @@ weather flag:
   back to Open-Meteo's default best-match model if BOM's feed comes back empty — which it currently does,
   as BOM's open-data delivery is suspended for platform upgrades as of 2026-09-15. Each forecast entry
   records which model actually supplied it (`source: 'bom_access_global' | 'best_match'`). Cached for 30
-  minutes per coordinate.
+  minutes per coordinate. `GET /api/jobs` fetches every distinct job suburb's forecast in a single batched
+  Open-Meteo request (`getForecasts`) rather than one request per suburb, with a retry-with-backoff on
+  `429`s as a backstop — avoids bursting the rate limit on a job list spanning many suburbs.
 
 ### Public holidays
 

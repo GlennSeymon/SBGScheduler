@@ -15,14 +15,25 @@ export class TtlCache<V> {
   constructor(private readonly ttlMs: number) {}
 
   async getOrCompute(key: string, compute: () => Promise<V>): Promise<V> {
-    const existing = this.entries.get(key);
-    if (existing && existing.expiresAt > Date.now()) {
-      return existing.value;
+    const existing = this.getIfFresh(key);
+    if (existing) {
+      return existing;
     }
 
     const value = compute();
+    this.set(key, value);
+    return value;
+  }
+
+  /** Returns the cached value for `key` if present and not expired, without triggering a compute. */
+  getIfFresh(key: string): Promise<V> | undefined {
+    const existing = this.entries.get(key);
+    return existing && existing.expiresAt > Date.now() ? existing.value : undefined;
+  }
+
+  /** Registers an in-flight (or resolved) value for `key`, e.g. one produced by a batched fetch. */
+  set(key: string, value: Promise<V>): void {
     this.entries.set(key, { value, expiresAt: Date.now() + this.ttlMs });
     value.catch(() => this.entries.delete(key));
-    return value;
   }
 }
