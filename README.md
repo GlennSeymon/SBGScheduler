@@ -23,25 +23,25 @@ interview take-home. See [clientBrief.md](./clientBrief.md) for the original cli
 - **Skeleton loaders** — loading states for the jobs grid (MUI X's default skeleton-row overlay) and the
   dashboard (summary cards + charts)
 - **Unit tests** — Vitest coverage for the rule engine and at-risk calculation, plus the assign form's
-  validation and the at-risk badge (React Testing Library), all runnable via `npm run test`; Playwright
-  e2e tests as time allows _(polish)_
+  validation and the at-risk badge (React Testing Library), all runnable via `npm run test`; see
+  [Future Release Plan](#future-release-plan) for e2e/component coverage not yet in scope
 - **Error tracking** — Sentry for frontend (React error boundary) and backend (centralized error
   middleware), one shared project for both
 
 ## Tech Stack
 
-| Layer               | Technology                                                                                             |
-| ------------------- | ------------------------------------------------------------------------------------------------------ |
-| Frontend            | React (Vite) + TypeScript, Material UI + MUI X DataGrid/Charts, Tanstack Query, React Hook Form, Axios |
-| Backend             | Node.js + Express + TypeScript                                                                         |
-| Shared              | Zod schemas + inferred TS types, imported by both frontend and backend so validation is written once   |
-| Database            | PostgreSQL (Neon), Prisma ORM                                                                          |
-| Weather & geocoding | [Open-Meteo](https://open-meteo.com/) forecast + geocoding APIs — free, keyless                        |
-| Public holidays     | [Nager.Holidays](https://nagerholidays.com) API — free, keyless                                        |
-| Testing             | Vitest (unit test runner), React Testing Library (frontend components), Playwright (e2e)               |
-| Error tracking      | Sentry                                                                                                 |
-| Hosting             | Vercel — frontend static build + backend as serverless functions under `/api`                          |
-| Tooling             | npm workspaces, ESLint (flat config, typescript-eslint), Prettier                                      |
+| Layer               | Technology                                                                                                                                         |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Frontend            | React (Vite) + TypeScript, Material UI + MUI X DataGrid/Charts, Tanstack Query, React Hook Form, Axios                                             |
+| Backend             | Node.js + Express + TypeScript                                                                                                                     |
+| Shared              | Zod schemas + inferred TS types, imported by both frontend and backend so validation is written once                                               |
+| Database            | PostgreSQL (Neon), Prisma ORM                                                                                                                      |
+| Weather & geocoding | [Open-Meteo](https://open-meteo.com/) forecast + geocoding APIs — free, keyless                                                                    |
+| Public holidays     | [Nager.Holidays](https://nagerholidays.com) API — free, keyless                                                                                    |
+| Testing             | Vitest (unit test runner), React Testing Library (frontend components); Playwright (e2e) planned — see [Future Release Plan](#future-release-plan) |
+| Error tracking      | Sentry                                                                                                                                             |
+| Hosting             | Vercel — frontend static build + backend as serverless functions under `/api`                                                                      |
+| Tooling             | npm workspaces, ESLint (flat config, typescript-eslint), Prettier                                                                                  |
 
 ## Prerequisites
 
@@ -252,6 +252,31 @@ in the dialog and as a snackbar.
 The rule engine blocks a reschedule that falls on a day the installer doesn't work.
 
 ![Reschedule dialog rejecting a day outside the installer's working days](screenshots/6jobRescheduleOutsideWorkingHours.png)
+
+## Future Release Plan
+
+Out of scope for this take-home's deadline, but what a follow-up iteration would consider next:
+
+- **Playwright e2e coverage** — assign happy path, reschedule happy path, and at-risk filter, exercising
+  the full stack (frontend → API → Neon) rather than today's unit-level Vitest/RTL coverage.
+- **Deeper component test suite** — Expand to cover more cases. Only the assign form and at-risk badge are covered today.
+- **Server-side pagination** — `GET /api/jobs` currently returns every job in one response and the
+  `DataGrid` paginates client-side, which is fine for this dataset but wouldn't scale; a production
+  version would push pagination (and filtering/sorting) down to the API so the client never holds the
+  full table in memory.
+- **Authentication/authorization** — there's currently no login. At minimum a dispatcher role, and
+  possibly a read-only installer view scoped to their own schedule.
+- **Concurrency handling on assign/reschedule** — two dispatchers assigning different jobs to the same
+  installer/slot at nearly the same time could both pass rule-engine validation before either write
+  lands, since there's no optimistic locking or transaction-level re-check at write time.
+- **Audit trail** — no history of who changed what and when on a job; useful for a scheduling tool where
+  a customer or installer disputes a reschedule.
+- **Calendar/timeline view** — the jobs grid is a flat table; a per-installer day/week calendar view
+  would let a dispatcher spot scheduling gaps and conflicts visually, rather than scanning rows.
+- **Customer/installer notifications** — job records already store phone/email but nothing sends a
+  confirmation or reschedule notice today.
+- **Map/travel-time-aware** — a map view was considered during scoping. Eligible
+  installer distance and travel time should be considered rather than simply installer availability in the state.
 
 ## Deployed link
 
