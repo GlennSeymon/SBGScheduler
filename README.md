@@ -92,6 +92,12 @@ npm run dev   # shared (watch build), backend, and frontend concurrently
 Frontend: http://localhost:5173 (proxies `/api/*` to the backend)
 Backend: http://localhost:3001
 
+> **On WSL2**: the backend disables Node's Happy Eyeballs address racing (`net.setDefaultAutoSelectFamily(false)`
+> in `backend/src/index.ts`) — WSL2's virtual network adapter otherwise makes Node's own IPv4 connection
+> attempts to some dual-stack hosts (Open-Meteo's geocoding API, notably) time out even though the same IP
+> connects fine via `curl`, which silently breaks weather/geocoding lookups (no job ever shows as at-risk)
+> without erroring. Not needed outside WSL2, but harmless there either way.
+
 **5. Build / lint / test**
 
 ```bash
