@@ -127,6 +127,7 @@ jobsRouter.patch('/:id/assign', async (req, res) => {
     { id: job.id, state: job.state, scheduledStart: candidateStart, durationBlocks: job.durationBlocks },
     otherJobs.map((j) => ({ id: j.id, scheduledStart: j.scheduledStart!, durationBlocks: j.durationBlocks })),
     holidays,
+    new Date(),
   );
   if (violations.length > 0) {
     res.status(409).json({ error: 'Scheduling rule violation', violations });
@@ -209,6 +210,7 @@ jobsRouter.patch('/:id/reschedule', async (req, res) => {
     { id: job.id, state: job.state, scheduledStart: effectiveScheduledStart, durationBlocks: job.durationBlocks },
     otherJobs.map((j) => ({ id: j.id, scheduledStart: j.scheduledStart!, durationBlocks: j.durationBlocks })),
     holidays,
+    new Date(),
   );
   if (violations.length > 0) {
     res.status(409).json({ error: 'Scheduling rule violation', violations });

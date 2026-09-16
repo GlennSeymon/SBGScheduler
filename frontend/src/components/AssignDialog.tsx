@@ -137,6 +137,7 @@ const AssignDialog = ({ job, open, onClose }: AssignDialogProps) => {
                     }
                     field.onChange(newValue.toISOString());
                   }}
+                  minDateTime={new Date()}
                   shouldDisableDate={(date) => holidayDates.has(format(date, 'yyyy-MM-dd'))}
                   slots={{ day: HolidayPickerDay }}
                   slotProps={{

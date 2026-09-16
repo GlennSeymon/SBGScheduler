@@ -5,6 +5,7 @@ import {
   checkNotOnLeave,
   checkDoubleBooking,
   checkNotPublicHoliday,
+  checkNotInPast,
   evaluateSchedulingRules,
   type RuleEngineInstaller,
   type RuleEngineJob,
@@ -214,9 +215,29 @@ describe('checkNotPublicHoliday', () => {
   });
 });
 
+describe('checkNotInPast', () => {
+  const now = new Date('2026-09-20T00:00:00+10:00');
+
+  it('passes when the job starts after now', () => {
+    expect(checkNotInPast(makeJob({ scheduledStart: new Date('2026-09-21T09:00:00+10:00') }), now)).toBeNull();
+  });
+
+  it('passes when the job starts exactly at now', () => {
+    expect(checkNotInPast(makeJob({ scheduledStart: now }), now)).toBeNull();
+  });
+
+  it('flags a job that starts before now', () => {
+    const job = makeJob({ scheduledStart: new Date('2026-09-19T09:00:00+10:00') });
+    const violation = checkNotInPast(job, now);
+    expect(violation?.rule).toBe('IN_PAST');
+  });
+});
+
 describe('evaluateSchedulingRules', () => {
+  const now = new Date('2026-09-20T00:00:00+10:00');
+
   it('returns no violations for a fully valid assignment', () => {
-    expect(evaluateSchedulingRules(makeInstaller(), makeJob(), [], [])).toEqual([]);
+    expect(evaluateSchedulingRules(makeInstaller(), makeJob(), [], [], now)).toEqual([]);
   });
 
   it('returns all applicable violations at once, not just the first', () => {
@@ -228,7 +249,7 @@ describe('evaluateSchedulingRules', () => {
     // Different state from the installer, on a non-working day, and inside the leave window.
     const job = makeJob({ state: 'VIC', scheduledStart: new Date('2026-09-19T09:00:00+10:00') });
 
-    const violations = evaluateSchedulingRules(installer, job, [], []);
+    const violations = evaluateSchedulingRules(installer, job, [], [], now);
     const rules = violations.map((v) => v.rule);
     expect(rules).toContain('STATE_MISMATCH');
     expect(rules).toContain('OUTSIDE_SHIFT');
@@ -240,9 +261,19 @@ describe('evaluateSchedulingRules', () => {
     const job = makeJob({ state: 'VIC', scheduledStart: new Date('2026-09-19T09:00:00+10:00') });
     const holiday = makeHoliday({ date: '2026-09-19', states: null });
 
-    const violations = evaluateSchedulingRules(installer, job, [], [holiday]);
+    const violations = evaluateSchedulingRules(installer, job, [], [holiday], now);
     const rules = violations.map((v) => v.rule);
     expect(rules).toContain('OUTSIDE_SHIFT');
     expect(rules).toContain('PUBLIC_HOLIDAY');
+  });
+
+  it('includes an in-the-past violation alongside other simultaneous violations', () => {
+    const installer = makeInstaller({ state: 'NSW' });
+    const job = makeJob({ state: 'VIC', scheduledStart: new Date('2026-09-19T09:00:00+10:00') });
+
+    const violations = evaluateSchedulingRules(installer, job, [], [], now);
+    const rules = violations.map((v) => v.rule);
+    expect(rules).toContain('STATE_MISMATCH');
+    expect(rules).toContain('IN_PAST');
   });
 });

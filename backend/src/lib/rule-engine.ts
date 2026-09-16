@@ -42,7 +42,8 @@ export type RuleViolation =
   | { rule: 'OUTSIDE_SHIFT'; message: string }
   | { rule: 'ON_LEAVE'; message: string }
   | { rule: 'DOUBLE_BOOKING'; message: string; conflictingJobId: string }
-  | { rule: 'PUBLIC_HOLIDAY'; message: string; holidayName: string };
+  | { rule: 'PUBLIC_HOLIDAY'; message: string; holidayName: string }
+  | { rule: 'IN_PAST'; message: string };
 
 function jobIntervalMs(job: RuleEngineJobInterval): { start: number; end: number } {
   const start = job.scheduledStart.getTime();
@@ -153,11 +154,21 @@ export function checkNotPublicHoliday(
   };
 }
 
+export function checkNotInPast(job: RuleEngineJob, now: Date): RuleViolation | null {
+  if (job.scheduledStart.getTime() >= now.getTime()) return null;
+
+  return {
+    rule: 'IN_PAST',
+    message: `Job ${job.id} can't be scheduled in the past (${job.scheduledStart.toISOString()})`,
+  };
+}
+
 export function evaluateSchedulingRules(
   installer: RuleEngineInstaller,
   job: RuleEngineJob,
   otherInstallerJobs: RuleEngineJobInterval[],
   holidays: PublicHoliday[],
+  now: Date,
 ): RuleViolation[] {
   return [
     checkStateMatch(installer, job),
@@ -165,5 +176,6 @@ export function evaluateSchedulingRules(
     checkNotOnLeave(installer, job),
     checkDoubleBooking(job, otherInstallerJobs),
     checkNotPublicHoliday(job, holidays),
+    checkNotInPast(job, now),
   ].filter((violation): violation is RuleViolation => violation !== null);
 }

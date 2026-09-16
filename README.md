@@ -148,7 +148,7 @@ Unscheduled job
 
 ## Scheduling Rule Engine
 
-`backend/src/lib/rule-engine.ts` runs five independent checks against a proposed assign/reschedule; any
+`backend/src/lib/rule-engine.ts` runs six independent checks against a proposed assign/reschedule; any
 violation blocks the booking and returns a reason shown inline in the assign/reschedule dialog. All checks
 run (not short-circuited), so a booking can fail for more than one reason at once.
 
@@ -159,6 +159,7 @@ run (not short-circuited), so a booking can fail for more than one reason at onc
 | `ON_LEAVE`       | The job's local calendar date falls within the installer's `leaveStart`–`leaveEnd` (inclusive)                                                                                                                               |
 | `DOUBLE_BOOKING` | The job's time interval overlaps another job already assigned to the same installer                                                                                                                                          |
 | `PUBLIC_HOLIDAY` | The job's local calendar date is a national public holiday, or a state public holiday for the job's own state (per [Nager.Holidays](https://nagerholidays.com))                                                              |
+| `IN_PAST`        | The job's `scheduledStart` is earlier than the current time — also enforced in the UI via the assign/reschedule date picker's `minDateTime`                                                                                  |
 
 Each state keeps its own IANA timezone (`STATE_TIME_ZONES`) for these comparisons — e.g. `QLD` doesn't
 observe daylight saving, so a shift/holiday boundary at the same wall-clock time can differ from `NSW`.
