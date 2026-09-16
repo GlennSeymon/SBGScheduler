@@ -1,3 +1,4 @@
+import axios from 'axios';
 import ms from 'ms';
 import type { Coordinates } from './geocoding.js';
 import { TtlCache } from './ttl-cache.js';
@@ -41,21 +42,24 @@ async function fetchDaily(
   coordinates: Coordinates,
   model?: 'bom_access_global',
 ): Promise<OpenMeteoDaily | undefined> {
-  const url = new URL('https://api.open-meteo.com/v1/forecast');
-  url.searchParams.set('latitude', String(coordinates.latitude));
-  url.searchParams.set('longitude', String(coordinates.longitude));
-  url.searchParams.set('daily', DAILY_VARIABLES);
-  url.searchParams.set('forecast_days', String(FORECAST_DAYS));
-  url.searchParams.set('timezone', 'auto');
-  if (model) url.searchParams.set('models', model);
-
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new WeatherError(`Open-Meteo forecast request failed (${response.status})`);
+  let response;
+  try {
+    response = await axios.get<OpenMeteoForecastResponse>('https://api.open-meteo.com/v1/forecast', {
+      params: {
+        latitude: coordinates.latitude,
+        longitude: coordinates.longitude,
+        daily: DAILY_VARIABLES,
+        forecast_days: FORECAST_DAYS,
+        timezone: 'auto',
+        ...(model ? { models: model } : {}),
+      },
+    });
+  } catch (error) {
+    const status = axios.isAxiosError(error) ? error.response?.status : undefined;
+    throw new WeatherError(`Open-Meteo forecast request failed (${status ?? 'network error'})`);
   }
 
-  const data = (await response.json()) as OpenMeteoForecastResponse;
-  return data.daily;
+  return response.data.daily;
 }
 
 function isAllNull(daily: OpenMeteoDaily | undefined): boolean {

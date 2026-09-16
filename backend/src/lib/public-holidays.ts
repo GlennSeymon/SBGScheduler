@@ -1,3 +1,4 @@
+import axios from 'axios';
 import ms from 'ms';
 import { AustralianState } from '../generated/enums.js';
 import { TtlCache } from './ttl-cache.js';
@@ -40,12 +41,15 @@ export async function getPublicHolidays(year: number): Promise<PublicHoliday[]> 
 }
 
 async function fetchHolidays(year: number): Promise<PublicHoliday[]> {
-  const response = await fetch(`https://nagerholidays.com/api/v4/Holidays/AU/${year}`);
-  if (!response.ok) {
-    throw new PublicHolidayError(`Nager holidays request failed (${response.status}) for AU/${year}`);
+  let response;
+  try {
+    response = await axios.get<unknown>(`https://nagerholidays.com/api/v4/Holidays/AU/${year}`);
+  } catch (error) {
+    const status = axios.isAxiosError(error) ? error.response?.status : undefined;
+    throw new PublicHolidayError(`Nager holidays request failed (${status ?? 'network error'}) for AU/${year}`);
   }
 
-  const data: unknown = await response.json();
+  const data = response.data;
   if (!Array.isArray(data)) {
     throw new PublicHolidayError(`Unexpected Nager holidays response shape for AU/${year}`);
   }

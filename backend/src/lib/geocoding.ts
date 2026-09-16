@@ -1,3 +1,4 @@
+import axios from 'axios';
 import ms from 'ms';
 import { AustralianState } from '../generated/enums.js';
 import { TtlCache } from './ttl-cache.js';
@@ -43,20 +44,20 @@ export async function geocodeSuburb(suburb: string, state: AustralianState): Pro
 }
 
 async function fetchCoordinates(suburb: string, state: AustralianState): Promise<Coordinates> {
-  const url = new URL('https://geocoding-api.open-meteo.com/v1/search');
-  url.searchParams.set('name', suburb);
-  url.searchParams.set('count', '20');
-  url.searchParams.set('countryCode', 'AU');
-
-  const response = await fetch(url);
-  if (!response.ok) {
+  let response;
+  try {
+    response = await axios.get<OpenMeteoGeocodingResponse>(
+      'https://geocoding-api.open-meteo.com/v1/search',
+      { params: { name: suburb, count: 20, countryCode: 'AU' } },
+    );
+  } catch (error) {
+    const status = axios.isAxiosError(error) ? error.response?.status : undefined;
     throw new GeocodingError(
-      `Open-Meteo geocoding request failed (${response.status}) for "${suburb}, ${state}"`,
+      `Open-Meteo geocoding request failed (${status ?? 'network error'}) for "${suburb}, ${state}"`,
     );
   }
 
-  const data = (await response.json()) as OpenMeteoGeocodingResponse;
-  const results = data.results ?? [];
+  const results = response.data.results ?? [];
   if (results.length === 0) {
     throw new GeocodingError(`No geocoding results for "${suburb}, ${state}"`);
   }
